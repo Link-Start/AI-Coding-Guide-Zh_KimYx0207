@@ -4,12 +4,48 @@
 
 ---
 
+## [v5.1] - 2026-09-14
+
+### 新增
+
+- README 新增「配套开源项目（老金出品）」段，推荐 [Meta_Kim](https://github.com/KimYx0207/Meta_Kim)（给 Claude Code / Codex / OpenClaw / Cursor 加治理执行层，Apache-2.0）与 [Kim_Service](https://github.com/KimYx0207/Kim_Service)（Hook 与 Agent Skill 合集，MIT），并标注学到哪些章节之后装最合适。
+- README 项目简介、「为什么放在一起」、核心特色、致谢改为四条线口径（v5.0 加入 WorkBuddy 后这几处仍写着「三类工具 / 三者 / 三线」）。
+
+### 修改
+
+- 四条主线完成本地版本修订（核查日：2026-09-14）：Claude Code v2.1.222 → **v2.1.270**、OpenClaw v2026.7.1-2 → **v2026.9.4**、Codex App 26.727 → **26.908**、Codex CLI 0.146.1 → **0.154.0**、WorkBuddy → **客户端 5.5.6**。同步 README 徽章、统计、版本说明和差异速览，保留旧版本时间线。
+- Claude Code 补齐 2.1.223–2.1.250 区间中官方已发布的条目，更新默认模型变量、`/review` 别名、fork、`--restricted`、插件 archive / GitLab / validate / eval 入口和云供应商 `/loop` 支持。保留模型切换 hooks、MCP 托管策略、后台任务修复等主体更新；纠正 `keybindingFlavor` 的含义、`/diff` 已有命令与新侧栏的区别、`/advisor` 文本形式的引入版本、`/effort` 选择器按键。v2.1.270 修复只读 Git 命令意外请求权限。
+- OpenClaw 课程按 v2026.9.4 补关键变化：升级链路重做（Doctor 失败回滚、隔离 candidate 预演、内置 triage agent）、**两条升级硬约束**（从 2026.8.2 升上来且无 service manager 须先跑一次 `openclaw update --no-restart`；失败回滚不覆盖数据库迁移，仍要求已验证的升级前备份）、全新安装快速通道、`openai/gpt-6-astra` 与 GPT Image 2.5、个人技能库与 Skill Workshop、统一 Plugins 工作区、掩码凭据请求与一次性自动化批准、公开只读会话分享（企业需默认关闭）、`OPENCLAW_CONFIG_READONLY=1`、Linux 桌面端（.deb / AppImage）。Docker 章节的版本锁定示例从 v2026.6.8 改到 v2026.9.4；FAQ 与安全章里旧的 `npm update -g openclaw` 统一改为 `openclaw update` 优先、npm 作退路，Q11 改为对升级前已验证的版本先做降级 dry-run，不再把 extended-stable 当通用回滚目标；换端口示例从 18889（落在教程自己标注的 CDP 端口池里）改为 19789；07 章「多语言记忆」按官方记录收窄为西班牙语、葡萄牙语两种；05 章把 v5.0 记在 v2026.7.x 名下的会议插件与 Wear OS companion 更正为 v2026.8.1。
+- Codex 课程按 App 26.908 + CLI 0.154.0 补关键变化：App 侧 Pets 悬浮控件快速对话（`@` 带上下文、`$` 选 skill）、Windows 同时按下两个 Alt 键截 Appshot、Sources 面板直接打开文件、Codex Micro 插入文本；CLI 侧 **`codex mcp-server` 子命令与独立二进制已移除**（2026-09-05 移除，升级后老脚本会直接失败）、Full Access 下 Guardian 跳过纯确认类操作、Guardian 记录跨压缩/重启/fork 保留、MCP 审批按 app 账号隔离、实验性 worktrees（`--worktree` / `/worktree`）。
+- WorkBuddy 课程按客户端 5.5.6 复核，三处直接影响照做的改动写进正文：**5.5.4 起「自动化」改名为「定时任务」**（WB-07 加前置提醒并改写入口措辞）、5.4.7 新增「订阅和用量」设置页（WB-01 / WB-02 / WB-10 的积分查询入口同步）、定价体系改版为体验/标准/高级/旗舰四档。另在版本提示中说明 5.5.5 创意设计与资料库引用、5.5.0 行业 Buddy 应用与腾讯文档编辑增强、5.4.0 Worktree 任务与 Git 分支切换、5.5.3 本地 Office 预览上限、5.5.4「允许锁屏运行」三档。
+- 清理多章正文里的角色化自称（「老金我」→「我」）和「沉淀」等用词；OC-00 修正一处嵌套代码块围栏；OC-01 按官方 changelog 改写 v2026.4.22 / v2026.4.27 捆绑插件加载说明（原文「懒加载和 manifest 驱动」不准确，实际是原生 Jiti 加载已构建的 dist 模块，以及 `activation.onStartup` 显式声明）。
+
+### 修复
+
+- WorkBuddy 补齐行业 Buddy 的应用选择、授权范围、场景任务、输出核对及跨应用接续；WB-09 改按真实的 Agent / Plan / 仅问答入口教学，补 Worktree 从基础提交创建、并行分工、逐项审阅、本地提交合并与结束任务的完整练习。保留创意设计的既定范围说明；移除剩余的固定省积分比例和无依据退款断言。
+- Codex CX-03 / CX-14 按 2026-09-14 官方资料逐项复核：命令表覆盖当前 24 个 App 入口，修正 `/status`、Goal 进度栏控制、Skills 与 slash 列表关系；补 Settings → Import、导入资产与后续设置、CLI `/import` 限制。对比章明确 Claude Desktop 同样提供可视化审查、worktree 与云端能力，区分 Local / Worktree 接续和云端环境。
+- Claude Code：补全复制后会失效的 Markdown 示例围栏；修复 Hooks 配置嵌套、WorktreeCreate/Remove 契约和并行执行说明，统一静默输出与事件决策边界。实战日志改为从 stdin JSON 读取事件，先建目录，再安全编码写入 JSONL；修正企业章重复句和 print 模式成本上限说明。MCP 章节区分 2026-07-28 的按请求协商与旧版初始化握手，避免只更新协议日期。
+- Codex：补中间版本的 Hooks / MCP 操作差量；修正插件安装子命令、旧线程刷新建议、连接应用账号的审批作用域，以及子代理控制权、文件权限与工作树隔离的区别。
+- OpenClaw：修正不存在的 Docker 镜像标签和裸卷名备份；从容器挂载读取实际卷名，停写后归档，恢复时检查匹配镜像并拒绝已有容器或非空卷。区分 Gateway 双卷脚本与包含可选 PostgreSQL/Redis 的多服务脚本，恢复演练使用独立项目名；定时备份通过 `crontab -e` 追加，避免覆盖已有任务。生产示例固定镜像版本，并区分宿主机端口映射与容器监听地址。将“失败就自动回滚”收窄为通过兼容检查才恢复，主动降级先 dry-run。
+- WorkBuddy：把未经证实的 QQ 邮箱事件触发界面改为定时邮件巡检；补锁屏运行的设置与在线前提；注明老会员过渡价资格，以及企业 9 月 30 日活动订单窗口与积分有效期的区别。移除 WB-01 / WB-02 / WB-03 / WB-10 中未经证实的专家团固定 3–5 倍消耗及费用排序，改为按实际任务与用量评估。
+- **修正 WorkBuddy 价格数据错误**（本轮最值得修的一处）。原文写"专业版约 99 元/月、年度版约 119 元/年起"，与官方定价页实际不符：个人版是四档，标准版年付 840 元（不是 119 元），高级版 1,680 元/年，旗舰版 8,400 元/年。WB-10 按官方定价页整段重写为月付/连续包月/年付/连续包年/实得积分五列表，并补企业版两档、个人与企业加量包、老用户过渡价；WB-01 的同源简表一并更正。同时补两条原文缺失的采购硬约束：**专有云 100 席起购**、**企业限时双倍积分活动的下单窗口至 2026-09-30**（活动期后的新购、续费和扩容须重新核对赠送规则）。
+- 修正 WorkBuddy 下载口径：官方文档的「历史版本下载」页只归档到 v5.1.2（2026-06-17），不是最新版下载口，WB-02 与 README 环境要求都改为从官网首页下载。
+- 修正 README 中"WorkBuddy App 无 semver"的错误表述——该产品线有完整语义化版本与公开更新日志，来源改为 workbuddy.cn 官方更新日志。
+
+### 说明
+
+- 更正 v5.0 条目与 README 差异速览里 OpenClaw v2026.6.8 → v2026.7.1-2 的变化清单：原先列出的 State safety & recovery、durable channel delivery、session rewind、interactive MCP Apps、meeting plugins、Wear OS 等条目不属于该区间（按官方 release notes，会议插件、Wear OS companion、MCP Apps、会话回退分支均为 v2026.8.1），已按 v2026.7.1 官方 highlights 重写。
+- 原先未完整取得的发布记录已补齐：Claude Code 2.1.223–2.1.250 区间内的 24 个已发布条目，及 Codex CLI 0.147.0–0.152.1 的 9 个正式版本。Codex 0.147.0 在聚合 changelog 中缺项，但 GitHub Release 与 npm 均确认已发布；0.142.0–0.146.1 继续沿用上一轮合并摘要。
+- 各章原有的历史版本标注（例如"v2.1.133+ 起可以…"）是刻意保留的时间线记录，不属于漏改。
+
+---
+
 ## [v5.0] - 2026-08-06
 
 ### 新增
 
 - 项目升级为 Claude Code、OpenClaw、Codex、WorkBuddy 四教程结构，新增 `docs/workbuddy/` 系列共 11 篇（WB-00 阅读指南 + WB-01~WB-10 正文），把腾讯 WorkBuddy 作为第四条主线，面向办公人和国内团队，与另外三条开发者主线互补不冲突。
-- WorkBuddy 系列围绕官方真实功能骨架组织：专家（人设+方法论+工具链）、专家团（团长自动拆解并行）、技能（技能市场一键装）、自动化（定时/触发/远程）、连接器（QQ 邮箱/腾讯文档/腾讯会议/企业微信等腾讯生态）五大核心概念，每篇带可跑通的工坊和卡住怎么办，专业术语第一次出现都解释。
+- WorkBuddy 系列围绕官方真实功能骨架组织：专家（人设+方法论+工具链）、专家团（团长自动拆解并行）、技能（技能市场一键装）、自动化（按时间规则执行）与远程指令、连接器（QQ 邮箱/腾讯文档/腾讯会议/企业微信等腾讯生态）五大核心概念，每篇带可跑通的工坊和卡住怎么办，专业术语第一次出现都解释。
 - WorkBuddy 系列采用纯老金教学视角编写，零外部参考痕迹（无 URL、无"官方文档说"），价格、积分、菜单名一律标注"以本机 App 关于页和官网为准"。WB-10 含四工具横向对比（Claude Code/Codex/OpenClaw/WorkBuddy），强调共存不二选一。
 - README 升格第四主线：标题、徽章、项目简介四工具对比表、新增 Part 4 目录、WorkBuddy 路线、Week 13-14 学习计划、统计 39→50 篇、版本表加 WorkBuddy 行、环境要求加 WorkBuddy 节、适用人群加办公人、免责声明加 WorkBuddy。
 
@@ -22,7 +58,7 @@
 - 课程稳定基线刷新到 Claude Code v2.1.222（从 v2.1.181）、Codex App 26.727 + CLI 0.146.1（从 26.609 + 0.141.0）、OpenClaw v2026.7.1-2（从 v2026.6.8，预发布线推进到 v2026.7.2-beta.7）。README 徽章、版本表、差异速览、免责声明同步更新。
 - Claude Code 课程按 v2.1.222 补关键变化：Sonnet 5 成默认（1M 上下文）、Opus 5 成默认、"Default" 权限模式改名 "Manual"（v2.1.200）、ultraplan 移除（v2.1.222）、subagent 默认后台 + 嵌套深度 3、新 `/doctor` / `/commit-push-pr` / `/fork` / `/code-review` 命令、性能 79× transcript 缩小 / 7× 工具回合提速（v2.1.208）、Remote Control 不再允许仓库级开启、新 hooks（DirectoryAdded / EndConversation / Notification）、OTel `OTEL_LOG_USER_PROMPTS=1` 行为变化。
 - Codex 课程按 App 26.727 + CLI 0.146.1 补关键变化：Codex 并入 ChatGPT 桌面 App（26.707）、GPT-5.6 Sol/Terra/Luna 全系（272K 上下文）、PR Chat、多仓库 diff 审查、本地项目多文件夹、Activity view、Chrome 扩展、多 Agent V2 稳定、`/import` 从 Claude Code + Cursor 迁移、远程插件默认开、MCP 交互式认证默认、新 `writes` 审批模式、Agent Plugins manifest + 新市场（Amazon Bedrock + Claude Code）、系统代理 PAC/WPAD、企业 in-app 更新管控。
-- OpenClaw 课程按 v2026.7.1-2 补关键变化：State safety & recovery（quarantine store、SQLite 崩溃可恢复快照、schema 升级拒丢数据）、durable channel delivery（Telegram/Slack 跨崩溃保消息）、session rewind and branching、interactive MCP Apps、structured agent questions、meeting plugins（Teams/Zoom）、Wear OS companion；修复 Memory Core 启动冲突 fatal restart loop、Codex progress replies 中途停。
+- OpenClaw 课程按 v2026.7.1-2 补关键变化：新模型与提供商（Claude Sonnet 5 / Mythos 5、Featherless、ClawRouter，GPT-5.6 成为新装默认）、Control UI 与原生 macOS 聊天重做、对话式 onboarding（Crestodian 真跑 agent loop）、移动端离线缓存与语音（Apple Watch 完整语音、iOS 朗读回复）、会话分组与自动标题、启动与升级恢复（容器迁移先于 Gateway readiness、control-plane-safe 模式）；v2026.7.1-1 修复 Memory Core 启动冲突导致的 fatal restart loop、Codex progress replies 中途停、WSL state permissions，v2026.7.1-2 修复 npm 插件更新 singleton-array metadata。
 
 ---
 

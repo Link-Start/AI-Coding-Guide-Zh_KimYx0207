@@ -9,14 +9,14 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：4-6小时
 > - **难度等级**：⭐⭐ 入门级
-> - **更新日期**：2026年6月9日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量和 v2.1.90+ 插件市场 env 说明保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量和 v2.1.90+ 插件市场 env 说明保留为历史基线）
 
 ---
 
 ## 📚 本课学习目标
 
-老金我看插件生态时最关心三件事：来源、权限、可撤销；这比插件名字听起来多厉害更重要。
+我看插件生态时最关心三件事：来源、权限、可撤销；这比插件名字听起来多厉害更重要。
 
 完成本课学习后，你将能够：
 
@@ -85,6 +85,8 @@
 ## 第1章：Plugins生态概览
 
 
+> **2026-09-14 插件更新（v2.1.270 基线）**：v2.1.224 起支持通过 HTTPS zip 安装 archive 插件，并可选 SHA-256 固定校验；v2.1.232 起市场支持 GitLab 仓库，`/plugin install plugin@marketplace` 会先刷新市场。v2.1.233 起，`claude plugin validate` 还能检查 `.claude/skills` 目录。v2.1.269 新增 `claude plugin eval`，用于运行插件评测集并生成 JSON 和 HTML 报告；它会运行评测，先用 `claude plugin eval --help` 确认参数与所需环境，再按评测集说明执行。来源：[官方 changelog](https://code.claude.com/docs/en/changelog)。
+
 > **v2.1.139→v2.1.158 插件更新**：插件依赖会被强制检查；Marketplace / Browse / Details 会展示 commands、agents、skills、hooks、MCP/LSP servers、更新时间和 projected context cost；插件启用、禁用、安装、HTTPS clone 以及 root-level `SKILL.md` 暴露都有修复。v2.1.153 起 `github` / `git` marketplace source 可用 `skipLfs` 跳过 Git LFS 下载；无 GitHub SSH key 的环境可用 `CLAUDE_CODE_PLUGIN_PREFER_HTTPS` 优先 HTTPS clone。v2.1.154 起插件可在 `plugin.json` 或 marketplace entry 声明 `defaultEnabled: false`，由用户通过 `/plugin` 或 `claude plugin enable` 显式开启；Discover tab 也会根据当前目录给出 “suggested for this directory” 推荐。v2.1.157 起 `.claude/skills` 目录里的插件会自动加载，无需 marketplace；`claude plugin init <name>` 可直接脚手架新插件，`/plugin` 参数也会补全子命令、已安装插件和已知 marketplace 插件。企业环境还要看 `pluginSuggestionMarketplaces` allowlist，避免把未经允许的组织市场推荐给用户。教程中遇到插件清单差异时，以 `/plugin` 当前界面为准。
 
 ### 1.1 什么是Claude Code Plugin？
@@ -127,11 +129,11 @@ APP更新          | Plugin手动更新（git pull）
 Plugin = manifest + runtime resources + optional markets/scope + 文档
 ```
 
-### 1.3 Plugins生态现状（2026年4月）
+### 1.3 Plugins 生态现状（2026年9月）
 
 **官方数据**：
 
-- **当前版本**：Claude Code v2.1.181（2026年6月18日验证）
+- **当前版本**：Claude Code v2.1.270（2026年9月14日验证）
 - **官方市场**：✅ 已上线，可通过 `/plugin` 和网页入口协同使用
 - **社区Plugin**：持续增长中
 
@@ -725,4 +727,4 @@ my-plugin/
 
 ---
 
-> **最后更新**：2026年6月18日 | **适用版本**：Claude Code v2.1.181
+> **最后更新**：2026年9月14日 | **适用版本**：Claude Code v2.1.270

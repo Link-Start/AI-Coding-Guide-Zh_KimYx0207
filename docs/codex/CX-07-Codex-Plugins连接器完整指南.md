@@ -13,7 +13,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐ 入门级
-> - **更新日期**：2026年5月30日
+> - **更新日期**：2026年9月14日
 > - **信息来源**：OpenAI Codex App Features、Plugins、Apps/Connectors、MCP、Skills 官方文档
 > - **前置要求**：已完成 [CX-01 安装](./CX-01-Codex-App安装与认证完整指南.md)、[CX-02 桌面工作流](./CX-02-Codex-App桌面工作流完整指南.md)
 
@@ -488,7 +488,7 @@ Codex App 的插件目录会把插件按来源分组。对课程学习来说，�
   ↓
 观察输出和工具调用
   ↓
-沉淀团队使用模板
+整理团队使用模板
   ↓
 定期复盘是否保留
   ↓
@@ -585,7 +585,16 @@ codex plugin marketplace upgrade marketplace-name
 codex plugin marketplace remove marketplace-name
 ```
 
-注意这里管理的是 marketplace，不是用一个普通 `plugin list` 命令列出所有插件。App 用户日常仍然从 App 的 Plugins 页面和 CLI TUI 的 `/plugins` 浏览。
+`codex plugin marketplace list` 列出的是来源；`codex plugin list` 列出插件。CLI v0.153.0 把插件的列出、安装和移除扩展到远程 marketplace；安装子命令拼作 `add`。先用下面这些只读命令核对列表和参数：
+
+```bash
+codex plugin list
+codex plugin list --available --json
+codex plugin add --help
+codex plugin remove --help
+```
+
+App 用户日常仍从 Plugins 页面操作；CLI TUI 中可用 `/plugins` 浏览。v0.151.0 起，插件目录也会合并项目级配置，并单独报告无效的项目 marketplace，避免一个坏来源挡住其他有效插件。某个项目找不到插件时，先核对该项目的来源和报错。依据见 [v0.151.0](https://github.com/openai/codex/releases/tag/rust-v0.151.0)、[v0.153.0](https://github.com/openai/codex/releases/tag/rust-v0.153.0) 及 [v0.154.0 插件命令定义](https://github.com/openai/codex/blob/rust-v0.154.0/codex-rs/cli/src/plugin_cmd.rs)。
 
 ### 16.3 Repo 级 marketplace 的课堂示例
 
@@ -850,7 +859,7 @@ enabled = false
 |------|----------|------|
 | 插件目录看不到 | marketplace 是否添加、App 是否重启 | Codex 可能还没发现来源 |
 | 插件能看到但不能安装 | 权限、workspace sharing、网络 | 目录可见不等于可安装 |
-| 安装后 `@` 找不到 | 新线程、插件是否启用 | 旧线程可能没有刷新能力 |
+| 安装后 `@` 找不到 | 插件是否启用、当前版本、工具刷新状态 | 先查看插件详情和 `/mcp`；刷新仍失败时再试新线程 |
 | 调用后无法读外部数据 | 外部 App 是否登录 | 插件安装不等于账号授权 |
 | MCP 工具不可用 | bundled MCP 是否还需配置 | 插件可带 MCP，但认证仍可能独立 |
 | 输出很泛 | prompt 没说明来源和范围 | Codex 不知道该用哪个插件 |
@@ -1023,7 +1032,7 @@ repo-root/
 
 ### Q1：安装 Plugin 后为什么旧线程没变化？
 
-旧线程可能没有刷新能力列表。安装、启用或禁用插件后，建议新开线程或重启 Codex。
+先确认插件已启用，再查看当前线程的工具列表。CLI v0.154.0 已支持既有会话获取新装插件工具，并在外部升级或回滚插件后刷新 Skills 和 Hooks。只有当前客户端仍未刷新、版本较旧或连接报错时，再尝试新线程或重启。这个修复不代替插件所需的外部账号授权。依据见 [v0.154.0 官方发布记录](https://github.com/openai/codex/releases/tag/rust-v0.154.0)。
 
 ### Q2：Plugin 可以只包含 Skill 吗？
 
@@ -1356,7 +1365,7 @@ Connector 层：
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月14日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

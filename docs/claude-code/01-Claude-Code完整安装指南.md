@@ -9,15 +9,15 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时（原生安装更简单！）
 > - **难度等级**：⭐ 零基础入门
-> - **更新日期**：2026年6月9日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **重要更新**：当前同时支持原生安装与标准 npm 安装；原生更省心，npm 路径仍然受支持且需要 Node.js 18+
 
 ---
 
 ## 📚 本课学习目标
 
-老金我把安装部分写得很细，是因为很多人输在账号、终端和路径这些第一步；后续更新会继续放在 GitHub：https://github.com/KimYx0207。
+我把安装部分写得很细，是因为很多人输在账号、终端和路径这些第一步；后续更新会继续放在 GitHub：https://github.com/KimYx0207。
 
 完成本课学习后，你将能够：
 
@@ -1418,7 +1418,7 @@ claude --dangerously-skip-permissions  # 💀 别这么干！
 > - ✅ 不包含重要数据
 > - ✅ 随时能删重来
 >
-> **专业阶段**：公司项目、开源项目**永远别加**！社区已记录用此参数把项目搞坏的案例，来源（32%误修改率）！
+> **专业阶段**：公司项目、开源项目**永远别加**！社区已记录用此参数把项目搞坏的案例，具体风险分析见下方参考链接。
 >
 > **参考**：
 > - 官方最佳实践：https://www.anthropic.com/engineering/claude-code-best-practices
@@ -2259,6 +2259,27 @@ sudo yum update ca-certificates
 
 **问题3：API连接超时**
 
+**症状：**
+
+```bash
+claude
+# Error: Connection timeout after 30000ms
+```
+
+**解决方案：**
+
+```bash
+# 1. 先确认是网络还是服务端问题
+curl -I https://api.anthropic.com
+
+# 2. 如果 curl 也超时，按上面「无法访问 api.anthropic.com」的代理配置步骤重试
+
+# 3. 如果 curl 正常但 claude 仍超时，检查是否有残留的代理环境变量
+env | grep -i proxy
+
+# 4. 企业网络下确认公司防火墙放通了 api.anthropic.com 的 443 端口
+```
+
 ### 8.4 API Key 配置问题
 
 **问题：环境变量未生效**
@@ -3027,6 +3048,9 @@ Claude Code 现在的模型配置，不只是"选 Sonnet 还是 Opus"。
 2. **启动参数**：`claude --model <alias|name>`
 3. **环境变量**：`ANTHROPIC_MODEL=<alias|name>`
 4. **设置文件**：`settings.json` 中的 `model`
+5. **新会话的默认值**：`ANTHROPIC_DEFAULT_MODEL=<alias|name>`（v2.1.236+）
+
+> **默认模型补充（核查日：2026-09-14）**：`ANTHROPIC_DEFAULT_MODEL` 用于指定新会话的起始模型；交互式 `/model` 保存的选择仍可覆盖它，并在重启后保留。它与优先级更高的 `ANTHROPIC_MODEL` 不同。组织托管策略还可能限制可选模型，详见[官方模型配置](https://code.claude.com/docs/en/model-config#set-a-default-model-for-new-sessions)。
 
 #### 常见用法
 
@@ -3452,8 +3476,8 @@ rm ~/.asdf/shims/claude  # 如果你用asdf
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日（已对照 Claude Code v2.1.181 release 增补安装、后台任务、插件、权限与安全说明；安装路径仍以「原生 + npm」双轨为准）
-**版本**：V3.4（v2.1.181 release 校准补丁）
+**最后更新**：2026年9月14日（已对照 Claude Code v2.1.270 release 增补安装、后台任务、插件、权限与安全说明；安装路径仍以「原生 + npm」双轨为准）
+**版本**：V3.5（v2.1.270 release 校准补丁）
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

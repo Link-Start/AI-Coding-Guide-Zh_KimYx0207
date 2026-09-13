@@ -17,8 +17,10 @@
 
 ## 什么是 Agent？
 
-老金我把多 Agent 协作讲成责任拆分，而不是热闹分身；每个 agent 都要有清楚的交付物。
+我把多 Agent 协作讲成责任拆分，而不是热闹分身；每个 agent 都要有清楚的交付物。
 
+
+> **2026-09-13 当前基线（v2026.9.4）**：多 Agent 侧这几版的变化集中在「跑得远、断得住」。v2026.8.1 起会话可以跑在配对设备或云端 worker 上，工作区随会话一起走，已经预热的机器和项目初始状态能被后续云会话复用；v2026.9.4 又支持从准备好的本地项目或公开 GitHub 仓库启动 Linux 云会话，并在开聊前先在 Control UI 里做可复用快照。观察手段也变好了：v2026.8.1 起会话进度卡能跨重载保留，subagent 活动和累积改动在网页端和原生端都能跟。可靠性上，v2026.9.2 起活动中、排队中和被委派的回复能在 Gateway 重启后恢复；v2026.9.4 起 subagent 的结果能回到 Talk（语音模式），多轮委派后也能把最终答案送出去。
 
 > **v2026.6.8 复核补充**：多 Agent 不只是“多开几个会话”。新版继续强化 interrupted tool calls、stale session bindings、compaction handoffs、media delivery retries、Workboard、agent coordination tools、agent run recovery、session metadata 和 Gateway runtime state。排查多 Agent 卡住时，先看 Activity / transcript / Gateway 日志、Workboard 状态和具体 channel / provider，再判断是不是 agent 设计问题。
 
@@ -1996,7 +1998,7 @@ openclaw gateway --port 18789
 1. 把共享信息写入公共目录（如 `~/.openclaw/shared/`）
 2. 在每个 Agent 的 SOUL.md 中指示它读取公共目录
 3. 手动复制记忆文件（不推荐，容易冲突）
-4. 使用 Memory Wiki 插件（`memory-wiki`，v2026.4.12+ 可用）-- 提供结构化的知识页面层，支持确定性的页面组织和跨 Agent 共享查询。详见官方文档 [memory-wiki](https://docs.openclaw.ai/concepts/memory)
+4. 使用 Memory Wiki 插件（`memory-wiki`，v2026.4.7 起随包内置）-- 提供结构化的知识页面层，支持确定性的页面组织和跨 Agent 共享查询。详见官方文档 [memory-wiki](https://docs.openclaw.ai/concepts/memory)
 5. 使用 Honcho 后端 -- 支持跨会话、多 Agent 感知的记忆系统
 
 ### Q3：能不能让一个 Agent 调用另一个 Agent？
@@ -2042,7 +2044,7 @@ Gateway 本身的资源消耗不会显著增加。Agent 是按需加载的 -- �
 - 磁盘空间：每个 Agent 的工作空间和会话历史
 - AI API 调用：每个 Agent 独立计费
 
-> v2026.4.20+ 优化了插件启动性能（冷启动时间降低约 74%，依赖加载时间降低 82-90%），多 Agent 场景下 Gateway 的首次响应速度明显改善。
+> v2026.4.22 优化了插件启动性能（捆绑插件加载时间降低 82-90%，`doctor --non-interactive` 运行时间降低约 74%），多 Agent 场景下 Gateway 的首次响应速度明显改善。
 
 ### Q9：能不能动态创建和销毁 Agent？
 

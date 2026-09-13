@@ -9,8 +9,8 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐⭐ 进阶
-> - **更新日期**：2026年6月9日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **信息来源**：
 >   - [Claude Code 官方文档 - Channels](https://code.claude.com/docs/en/channels)
 >   - [Claude Code 官方文档 - Scheduled tasks](https://code.claude.com/docs/en/scheduled-tasks)
@@ -495,9 +495,9 @@ v2.1.110 的 `--resume` 恢复策略有细节：
 
 这是确定性偏移，不是随机的。
 
-### 10.9 Bedrock / Vertex / Foundry 限制
+### 10.9 Bedrock / Vertex / Foundry 的版本差异
 
-在 Bedrock、Vertex 或 Foundry 环境下，`/loop <prompt>` 固定为 **10 分钟间隔**，不支持动态调整。
+从 v2.1.248 起，Bedrock、Vertex、Foundry 上的 `/loop` 也支持动态间隔和无 prompt 的默认维护模式，不能再按「固定 10 分钟、不支持动态调整」配置。教程基线已包含此变化；旧客户端请先查本机版本。来源：[官方 changelog](https://code.claude.com/docs/en/changelog)（核查日：2026-09-14）。
 
 ### 10.10 禁用调度器
 
@@ -592,8 +592,8 @@ claude --resume
 ## 14. 下一步建议
 
 - 想跨设备继续本地会话：继续看 [Remote Control完整指南](./12-Remote-Control完整指南.md)
-- 想控制模型、1M 上下文和 `opusplan`：继续看 [安装指南中的模型配置章节](./01-Claude-Code完整安装指南.md#85部分模型配置安装后的进阶配置)
+- 想控制模型、1M 上下文和 `opusplan`：继续看 [安装指南中的模型配置章节](./01-Claude-Code完整安装指南.md#第85部分模型配置安装后的进阶配置)
 
 ---
 
-> **最后更新**：2026年6月18日 | **适用版本**：Claude Code v2.1.181
+> **最后更新**：2026年9月14日 | **适用版本**：Claude Code v2.1.270

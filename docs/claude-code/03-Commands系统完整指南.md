@@ -9,8 +9,8 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：4-6小时
 > - **难度等级**：⭐⭐ 入门级
-> - **更新日期**：2026年6月9日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **信息来源**：[内置命令参考](https://code.claude.com/docs/en/commands) | [Skills 官方文档](https://code.claude.com/docs/en/slash-commands) | [Claude Command Suite](https://github.com/qdhenry/Claude-Command-Suite) | [最佳实践](https://www.anthropic.com/engineering/claude-code-best-practices)
 > - **前置要求**：已完成Claude Code安装和基础使用
 
@@ -458,6 +458,8 @@ You: /hello
 
 > **2026-05-30 版本差异速览（v2.1.158）**：当前稳定版新增 Opus 4.8 与 `/effort xhigh`，`/workflows` 可查看 dynamic workflows 后台编排，`claude agents` 支持用 `! <command>` 或 `claude --bg --exec '<command>'` 启动可附着/可分离的后台 shell 会话。v2.1.157 还补了 `/plugin` 参数补全、`/terminal-setup` 对 IDE 终端 GPU 加速的处理，以及 workflow 关键词触发开关；`/simplify` 现在是清理型 review，不再等同于完整 `/code-review --fix`，代码缺陷审查仍以 `/code-review` 为主路径。
 
+> **2026-09-14 当前基线（v2.1.270）**：`/diff` 在 v2.1.260 增强了全屏侧栏；新增的 `/skill-doctor` 用于查看 Skill 使用情况与上下文占用。`/output-style [name]` 可以列出和切换输出风格，`/advisor` 支持文本形式 `/advisor`、`/advisor <model>`、`/advisor off`。在 `/effort` 选择器里按 `s` 可只改当前会话。`/review` 自 v2.1.223 起是 `/code-review` 的别名；`/ultrareview --post` 会直接发送 PR 评论，使用前要确认允许对外发布。插件作者还可使用 `claude plugin eval` 跑评测集并生成 JSON 与 HTML 报告，具体参数先查 `claude plugin eval --help`。来源：[官方 changelog](https://code.claude.com/docs/en/changelog)。
+
 > **本节说明**：这一节是参考表，不建议第一次学习时逐行阅读。你已经在第二部分创建过一个能运行的命令；如果目标是继续实操，可以直接跳到「第四部分：自定义命令开发」。需要查命令时再回来看这张表。
 >
 > **详细教程**：请回顾「02-基础使用完整指南.md」→ 第四部分：Slash命令大全
@@ -504,6 +506,10 @@ You: /hello
 |                      | `/autofix-pr`    | 远程盯 PR 并修 CI/评论 | PR 修复循环 |      |
 |                      | `/ultrareview`   | 云端多 Agent 深度审查（v2.1.222 起 ultraplan 已移除，深度审查走 `/code-review`） | 高风险 PR |      |
 |                      | `/ultraplan`     | ~~云端深度计划~~（v2.1.222 已移除，改用 `/plan`）  | ~~复杂方案设计~~   |      |
+|                      | `/diff`          | 全屏实时查看未提交改动（v2.1.260+） | 边聊边看 diff |      |
+|                      | `/skill-doctor`  | 查没被用到的 Skill 和上下文占用（v2.1.261+） | Skill 排障 |      |
+|                      | `/output-style [name]` | 列出并切换输出风格，远程与无头会话可用（v2.1.269+） | 风格切换 |      |
+|                      | `/advisor`       | 查看 Advisor 状态，支持文本形式（v2.1.260+） | 低风险建议 |      |
 |                      | `/tasks`         | 后台任务管理    | 查看后台 Bash / agent 任务 |      |
 |                      | `/rewind`        | 回退检查点      | 撤销修改       |  ⭐  |
 | **诊断工具**   | `/doctor`        | 系统健康检查    | 排查问题       |      |
@@ -541,7 +547,7 @@ You: /hello
 ### v2.1.69+ 到 v2.1.158 的常用命令增量 🆕
 
 
-以下命令是 Claude Code 在 2.1.69 之后持续扩展、到 v2.1.158 仍然值得优先掌握的一批能力：
+以下命令是 Claude Code 在 2.1.69 之后持续扩展、到 v2.1.270 仍然值得优先掌握的一批能力：
 
 - `/powerup`：交互式课程（**v2.1.90**，官方 release 原文：*interactive lessons teaching Claude Code features with animated demos*）
 - `/goal`：设置完成条件，Claude 会跨 turns 持续推进，直到达成目标、遇到限制或被你停止
@@ -575,6 +581,11 @@ You: /hello
 - `/config`：v2.1.157+ 可关闭 workflow 关键词触发，避免普通提示里的 “workflow” 误触发 dynamic workflow
 - Vim NORMAL 模式下 `/`：v2.1.152+ 打开反向历史搜索，和 bash/zsh vi-mode 更接近
 - Markdown 输出：v2.1.149+ GFM task list checkbox 会按勾选框渲染，不再只是普通项目符号
+- `/diff`：v2.1.260+ 全屏下在对话旁开一栏，实时显示未提交改动
+- `/skill-doctor`：v2.1.261+ 列出没被用到的 Skill 及其上下文占用，清理 Skill 目录时先跑它
+- `/output-style [name]`：v2.1.269+ 列出并切换输出风格，远程和无头会话同样可用
+- `/advisor`：v2.1.260+ 支持文本形式 `/advisor`、`/advisor <model>`、`/advisor off`
+- `/effort` 选择器：v2.1.257+ 按 `s` 只改当前会话的 effort；按 Enter 保存默认值。不要把选择器按键写成 `/effort s` 参数
 
 #### /powerup - 交互式功能教程（v2.1.90+）
 
@@ -1307,7 +1318,6 @@ argument-hint: <热点关键词>
 - 文章文件路径
 - 选定的标题
 - 质量检查报告
-```
 ````
 
 ### 5.3 模块化设计
@@ -1777,7 +1787,7 @@ argument-hint: <姓名>
 
 **参考答案**：
 
-```markdown
+````markdown
 ---
 description: 代码审查命令 - 检查代码质量和潜在问题
 argument-hint: <文件路径>
@@ -1849,6 +1859,7 @@ Read("$ARGUMENTS")
 代码亮点：
 - [亮点1]
 ```
+````
 
 **测试**：
 
@@ -1872,7 +1883,7 @@ Read("$ARGUMENTS")
 
 **参考答案**：
 
-```markdown
+````markdown
 ---
 description: 每日内容创作工作流 - 从热点到成稿全流程完成
 argument-hint: [热点关键词（可选）]
@@ -1948,6 +1959,7 @@ allowed-tools:
 2. [标题2]
 3. [标题3]
 ```
+````
 
 **测试**：
 
@@ -2052,6 +2064,7 @@ allowed-tools:
 ```
 [输出模板]
 ```
+````
 
 ---
 

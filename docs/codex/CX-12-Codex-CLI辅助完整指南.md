@@ -13,7 +13,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐ 入门级
-> - **更新日期**：2026年6月18日
+> - **更新日期**：2026年9月14日
 > - **信息来源**：OpenAI Codex CLI、CLI Slash Commands、Config、MCP、Review 官方文档
 > - **前置要求**：已完成 [CX-01 安装](./CX-01-Codex-App安装与认证完整指南.md)
 
@@ -78,7 +78,7 @@ CLI 是 App 的辅助，不是“更高级才算会用”。先分清它的几�
 
 ## 0. CLI 的三种使用模式
 
-老金我讲 CLI 时会不断提醒：它是 App 主线的补充，不是让新手一开始就掉进终端细节。
+我讲 CLI 时会不断提醒：它是 App 主线的补充，不是让新手一开始就掉进终端细节。
 
 ```text
 交互模式：codex
@@ -117,7 +117,7 @@ CLI 离 Git、shell、CI 更近，所以更要保守：
 ## 1. CLI 的定位
 
 
-> **v0.141.0 CLI 辅助基线**：CLI 仍服务 Codex App 主线。v0.139.0 增强 code mode web search、MCP schema、doctor 诊断和 plugin marketplace；v0.140.0 增加 `/usage`、`/goal` 大文本 / 图片、`/import`、`codex delete` / `/delete`、统一 `@` mentions 和加密凭证；v0.141.0 强化远程执行 E2E relay、native cwd / shell / permission path 保留、executor plugin stdio MCP、PostToolUse blocking、插件路由、Windows sandbox stale credentials 与企业代理 TLS 修复。安装方式以官方 CLI 文档为准，不再只写 npm。
+> **v0.154.0 CLI 辅助基线（核查日：2026-09-14）**：CLI 仍服务 Codex App 主线。v0.139.0 增强 code mode web search、MCP schema、doctor 诊断和 plugin marketplace；v0.140.0 增加 `/usage`、`/goal` 大文本 / 图片、`/import`、`codex delete` / `/delete`、统一 `@` mentions 和加密凭证；v0.141.0 强化远程执行 E2E relay、native cwd / shell / permission path 保留、executor plugin stdio MCP、PostToolUse blocking、插件路由、Windows sandbox stale credentials 与企业代理 TLS 修复。v0.147.0–v0.152.1 补齐了任务导出与接续、Hooks 异步执行和 MCP handler、可选 MCP 启动等待与单工具输出预算，逐版要点见下表；v0.153.0 补了 Vim 撤销 / 重做、插件 CLI 从远程 marketplace 安装、TUI 历史显示完整 patch；v0.154.0 加了实验性 worktrees、任务执行中追问、Windows 会话共享后台服务，并移除了已废弃的 `codex mcp-server` 入口。安装方式以官方 CLI 文档为准，不再只写 npm。
 
 CLI 是 App 的辅助工具，适合：
 
@@ -159,7 +159,7 @@ App 用户学习 CLI 的顺序：
 
 不要先背参数表。CLI 版本变化快，本机 `--help` 比教程里的静态列表可靠。
 
-### 2.1 v0.129.0 到 v0.141.0：先用本机命令确认差量
+### 2.1 v0.129.0 到 v0.154.0：先用本机命令确认差量
 
 这几版变化集中在 CLI 可观测性、远程执行、权限配置和 SDK，而不是“多背几个参数”。升级后先做四个确认：
 
@@ -188,6 +188,17 @@ codex --help
 | v0.139.0 | code mode web search、MCP schema oneOf / allOf 保留、doctor editor / pager 诊断、plugin marketplace JSON / cache | 排查 MCP、插件和终端体验时先用 doctor 和 marketplace 列表确认本机状态 |
 | v0.140.0 | `/usage`、`/import`、`/delete` / `codex delete`、统一 `@` mentions、加密 Bedrock / API / MCP OAuth 凭证 | CLI 迁移、用量查看和敏感凭证管理进入辅助路径 |
 | v0.141.0 | 远程执行 E2E relay、native cwd / shell / permission path 保留、executor plugin stdio MCP、PostToolUse blocking、Windows sandbox 修复 | 远程执行、code mode hooks、企业代理和 Windows 排障时优先核对本机版本 |
+| v0.142.0 – v0.146.1 | GPT-5.6 Sol / Terra / Luna 全系（272K 上下文）、多 Agent V2 稳定（v0.145.0，可配 subagent 模型 / 推理等级 / 并发）、`/import` 扩展到 Claude Code + Cursor、`/new` + `/clear` 命名与置顶线程、线程分叉、远程插件默认开（npm marketplace）、MCP 交互式认证转正、新 `writes` 审批模式、Agent Plugins manifest 与 workspace 发布、新市场 Amazon Bedrock + Claude Code、系统代理 PAC / WPAD、企业 in-app 更新管控 | 上一轮（2026-08-06）按官方 changelog 汇总，未逐版拆分；多 Agent 配置见 CX-08 |
+| [v0.147.0](https://github.com/openai/codex/releases/tag/rust-v0.147.0) | 可移植 Agent Plugins、跨本地 / 个人 / 工作区 / 远程目录搜索；`--approve-for-me`；移除 `codex exec --full-auto` | 插件先核对来源；自动审查与沙盒是两个边界，旧脚本用 `--sandbox workspace-write` 迁移被移除的参数 |
+| [v0.148.0](https://github.com/openai/codex/releases/tag/rust-v0.148.0) | `/export` 导出完整对话；`codex exec fork`；Hooks 可异步运行命令或调用 MCP；OAuth 重认证后恢复 MCP | 导出后核对目标文件；后台 Hook 用于日志 / 通知，阻断策略仍同步执行，见 CX-04 |
+| [v0.149.0](https://github.com/openai/codex/releases/tag/rust-v0.149.0) | `codex agents` 任务面板、`codex queue`；`/cd`、`/pwd`、`/cwd`；恢复 / fork 保留原权限 profile | 接续前核对任务 ID、host、cwd 和权限，不按当前默认设置猜旧任务的边界 |
+| [v0.150.0](https://github.com/openai/codex/releases/tag/rust-v0.150.0) | `@` 搜索扩展到其他 Codex 任务；`/copy` 增加完整回复 / 代码块 / 引文选择器；`Interrupt` Hooks；未信任项目不加载 `AGENTS.md` | 引用任务用于取上下文；发送新消息是另一项操作；中断 Hook 仅作用于顶层活动回合 |
+| [v0.151.0](https://github.com/openai/codex/releases/tag/rust-v0.151.0) | `mcp_optional_startup_grace_ms`；插件目录合并项目配置并隔离坏来源报错；恢复的权限 profile 与 `/cd` 沙盒边界修复 | 区分可选 MCP 的发现等待、单 server 启动超时与工具调用超时，见 CX-05 |
+| [v0.152.0](https://github.com/openai/codex/releases/tag/rust-v0.152.0) | 包式 MCP server 名称、单工具 `output_token_limit`；`update_plan` 工具改为默认关闭；恢复 cwd 与授权记录修复 | 按实际工具名设置输出预算；需要计划工具时可配置 `tools.update_plan.enabled = true`，这项变化不等于移除 `/plan` 模式 |
+| v0.153.0 | Vim 撤销 `u` / 重做 `Ctrl+R` 保留草稿与附件、插件 CLI 的 `list` / `add` / `remove` 支持远程 marketplace、`tui.auto_recap = false`、TUI 历史显示完整 patch 和单条命令、Guardian 记录跨压缩与重启保留、记住的 MCP 工具批准按所选连接应用账号隔离 | 升级后先确认 Vim 撤销、插件安装来源和 Guardian 记录是否按预期保留 |
+| v0.154.0 | 模型选择器加入 GPT-6-Astra、实验性 worktrees（`--worktree` / `/worktree`）、任务执行中可追问、Windows 会话共享后台服务、`/copy` 复制状态输出、移除 `codex mcp-server` 入口 | 本篇当前基线；Windows 用户注意后台服务的生命周期命令，脚本里不要再调用 `codex mcp-server` |
+
+> **核查范围（2026-09-14）**：v0.147.0–v0.152.1 已用 [官方 changelog](https://developers.openai.com/codex/changelog)、[OpenAI GitHub Releases](https://github.com/openai/codex/releases) 与 [npm 版本记录](https://registry.npmjs.org/@openai%2Fcodex) 交叉核对。聚合 changelog 当前未列出 v0.147.0，但 GitHub 有 2026-08-07 的正式 release，npm 也有对应稳定包。v0.149.1、v0.150.1 和 v0.152.1 的补丁记录已检查，主要涉及图片压缩预算和审批策略，未逐条扩写。v0.142.0–v0.146.1 仍保留上一轮合并摘要；本机实际入口用 `codex --version`、`codex doctor` 和 `codex --help` 确认。
 
 这些版本还补了很多“看起来小、实际影响学习体验”的 TUI 和启动修复：链接、表格、取消提示、目标续跑、配置错误展示、OAuth/MCP 刷新和 workspace instruction 加载都更稳。写教程和排障时，不需要让新手背每个变更，但要解释“为什么升级后终端界面、App handoff 和插件排查突然更稳了”。
 
@@ -207,7 +218,7 @@ codex --ask-for-approval never --sandbox read-only
 codex --dangerously-bypass-approvals-and-sandbox
 ```
 
-不要把危险模式写成团队默认推荐。
+不要把危险模式写成团队默认推荐。CLI v0.147.0 新增的 `--approve-for-me` 是让自动审查处理审批，不会替你选择任意读写范围；沙盒仍应单独核对。同版已移除 `codex exec --full-auto`，旧脚本按 [该版迁移说明](https://github.com/openai/codex/releases/tag/rust-v0.147.0) 改用 `--sandbox workspace-write`，并明确审批策略。
 
 如果你不知道该选什么，App 用户默认做法是：
 
@@ -254,6 +265,8 @@ codex exec \
 ```
 
 `codex exec resume` 适合恢复旧的非交互任务上下文。是否能和 `--output-schema` 组合，以你本机 `codex exec resume --help` 为准；教程不要把组合参数写成所有版本都可用。
+
+CLI v0.148.0 起也支持 `codex exec fork`，适合从已有会话另开一个会话分支继续试验。先读 `codex exec fork --help`，区分“继续原会话”与“创建新会话”；恢复或 fork 后，再确认实际 cwd 和继承的权限 profile。
 
 ## 5. `codex review`
 
@@ -311,6 +324,17 @@ v0.133.0 起 Goals 默认启用，并有专用存储追踪 active turns 之间�
 v0.131.0 起，`@` mentions 搜索范围更宽，能覆盖文件、目录、plugins 和 skills。路径不确定时，优先在 TUI 里输入 `@` 搜索，而不是复制一长串容易出错的路径。
 
 session picker 在 v0.132.0 后更适合恢复旧线程：重命名线程会显示 `name (thread-id)`，粘贴文本也能用于搜索。找不到旧任务时，先用 picker 搜标题关键词，再决定是否用 `codex exec resume`。
+
+后续几版增加了这些 **CLI TUI** 入口，使用前仍以本机 `/help` 为准，不照搬到 App 输入框：
+
+| 需求 | 入口与引入版本 | 操作前核对 |
+|---|---|---|
+| 留下完整对话记录 | v0.148.0 `/export`，导出到剪贴板或新 Markdown 文件 | 导出目标和内容范围 |
+| 查看或切换工作目录 | v0.149.0 `/pwd`、`/cwd`、`/cd` | 切换后的真实目录、仓库与权限 |
+| 复制回复的一部分 | v0.150.0 为已有 `/copy` 增加目标选择器 | 选完整回复、代码块还是引文 |
+| 给现有任务补上下文 | v0.150.0 `@` 增加任务引用 | 选对任务，分清读取上下文与发送新指令 |
+
+需要批量找任务或向已有任务排队发送消息时，先查看 `codex agents --help` 和 `codex queue --help`（v0.149.0 起）。这些命令会涉及具体任务；真正发送前要确认任务 ID、所在 host 和消息内容。
 
 ## 7. CLI 管理 MCP / Plugins
 
@@ -1265,7 +1289,7 @@ CLI 的高阶能力不是"更快把任务扔出去"，而是把任务边界写�
 
 ## 34. CLI 课程案例：把终端输出变成团队知识
 
-CLI 经常出现在排障现场。一个人跑完 `doctor`、测试、lint、review，结果只在自己终端里闪过，团队没有任何沉淀。更好的做法是让 Codex 帮你把终端输出转成可复用知识。
+CLI 经常出现在排障现场。一个人跑完 `doctor`、测试、lint、review，结果只在自己终端里闪过，团队什么也没留下。更好的做法是让 Codex 帮你把终端输出转成可复用知识。
 
 场景：三个人都遇到 Windows 上 CLI 和 App 行为不一致。与其各自排查，不如整理一份团队排障条目。
 
@@ -1422,7 +1446,7 @@ Do not modify files.
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月14日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

@@ -15,7 +15,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐⭐ 进阶级
-> - **更新日期**：2026年6月18日
+> - **更新日期**：2026年9月13日
 > - **信息来源**：OpenAI Codex Settings、Config、Rules、Hooks、MCP、Plugins、Automations 官方文档
 > - **前置要求**：已完成CX-01至CX-12，熟悉App所有基本功能
 
@@ -148,7 +148,7 @@ Codex App 安全不是"完全不让它做事"，而是让每类动作有边界�
 ## 2. 审批与沙盒
 
 
-> **v0.133.0→v0.141.0 权限与审计更新**：permission profiles 已支持列表、继承、managed `requirements.toml`、运行时刷新、named profiles 和更强的 Windows sandbox 集成；后续版本又补强了 cloud-managed config、remote-control grants、personal access token v2、plugin JSON 输出、配置错误展示、`/app` 交接到 Desktop、加密凭证、PostToolUse blocking、远程执行权限路径保留和 Windows sandbox 修复。企业文档里不要只写单一 approval mode，要把 profile、requirements、项目规则、`--profile` 迁移、插件结构化输出和 `codex doctor` 诊断证据一起看。
+> **v0.133.0→v0.154.0 权限与审计更新（核查日：2026-09-13）**：permission profiles 已支持列表、继承、managed `requirements.toml`、运行时刷新、named profiles 和更强的 Windows sandbox 集成；后续版本又补强了 cloud-managed config、remote-control grants、personal access token v2、plugin JSON 输出、配置错误展示、`/app` 交接到 Desktop、加密凭证、PostToolUse blocking、远程执行权限路径保留和 Windows sandbox 修复。企业文档里不要只写单一 approval mode，要把 profile、requirements、项目规则、`--profile` 迁移、插件结构化输出和 `codex doctor` 诊断证据一起看。还有一处影响存量脚本：`codex mcp-server` 子命令和独立二进制已在 2026-09-05 移除（2026-08-24 起标记废弃），企业内部文档或 CI 里如果还在调用它，升到 0.154.0 会直接失败。官方给的替代是 Codex app server，但 `app-server` 命令目前仍是实验性质，官方明确不建议用于生产，迁移前先在测试环境验证。
 
 推荐基线：
 
@@ -1427,7 +1427,7 @@ AGENTS.md                    # 项目规则
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月13日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

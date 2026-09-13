@@ -9,15 +9,15 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：4-6小时
 > - **难度等级**：⭐⭐ 入门级（有Claude Code基础即可）
-> - **更新日期**：2026年6月9日
-> - **适用版本**：MCP规范 2025-11-25 / Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：MCP规范 2026-07-28 / Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **前置要求**：已完成Claude Code安装和基础使用
 
 ---
 
 ## 本课学习目标
 
-老金我讲 MCP 时会优先讲边界和证据来源，因为外部工具越强，越不能靠感觉授权。
+我讲 MCP 时会优先讲边界和证据来源，因为外部工具越强，越不能靠感觉授权。
 
 完成本课学习后，你将能够：
 
@@ -171,15 +171,16 @@ Cursor ──────────┤              数据库 MCP Server
 
 ### 1.2 MCP的发展历程
 
-> 📌 **信息来源**：[MCP官方文档](https://modelcontextprotocol.io/) | [GitHub公告](https://github.com/modelcontextprotocol) | 验证日期：2026-02-25
+> 📌 **信息来源**：[MCP 版本说明](https://modelcontextprotocol.io/specification/versioning) | [规范正式发布记录](https://github.com/modelcontextprotocol/modelcontextprotocol/releases/tag/2026-07-28) | 核查日：2026-09-14
 
 | 时间 | 里程碑事件 | 意义 |
 |------|-----------|------|
 | **2024年11月** | Anthropic发布MCP 1.0规范 | 开创AI工具标准化先河 |
 | **2025年3月** | 发布2025-03-26版本 | 引入Streamable HTTP传输，废弃SSE |
 | **2025年6月** | 发布2025-06-18版本 | 进一步完善协议规范 |
-| **2025年11月** | 发布2025-11-25版本 | 当前最新稳定版本 |
+| **2025年11月** | 发布2025-11-25版本 | 沿用初始化握手协商；2026-07-28 版仍提供与这一代的兼容路径 |
 | **2025年12月9日** | MCP捐赠给Linux基金会AAIF | 成为行业标准，OpenAI/Google/Microsoft等巨头支持 |
+| **2026年7月28日** | 发布2026-07-28版本 | 当前协议版本（核查日：2026-09-14，以官方 versioning 页为准） |
 
 > 💡 **重要事件**：2025年12月9日，Anthropic将MCP捐赠给Linux基金会下的Agentic AI Foundation（AAIF）。这意味着MCP从"Anthropic的协议"变成了"行业标准"，OpenAI、Google DeepMind、Microsoft等主流AI厂商都已表态支持。
 
@@ -1291,6 +1292,12 @@ claude mcp add --transport http my-remote-server https://your-server.com/mcp
 
 ### 4.4 连接生命周期
 
+**先看协议版本（核查日：2026-09-14）**：2026-07-28 版改为按请求声明协议版本。请求在 `_meta` 的 `io.modelcontextprotocol/protocolVersion` 中带版本；Streamable HTTP 还会在 `MCP-Protocol-Version` 请求头中带同一值。服务器逐条接受或拒绝请求，不再要求先完成旧版初始化握手。
+
+客户端可以先调用 `server/discover`，取得服务器支持的版本、能力和身份信息；服务器必须实现这个 RPC，但客户端可以直接发业务请求。如果收到 `UnsupportedProtocolVersionError`，再根据返回的版本列表选双方支持的版本重试。
+
+**下面是 2025-11-25 及更早协议的兼容流程**。旧客户端、旧 SDK 仍可能走这条路径，不能只把 `initialize` 中的日期替换成 2026-07-28 就算完成升级：
+
 ```
 1. 初始化阶段
    Client → Server: initialize请求（发送客户端能力）
@@ -1306,6 +1313,8 @@ claude mcp add --transport http my-remote-server https://your-server.com/mcp
    Client/Server: 关闭连接
    Server: 清理资源
 ```
+
+后续开发示例展示 SDK 封装的工具注册与 stdio 启动。实际使用的协议版本取决于客户端和所装 SDK 的兼容范围；规范的最新版本不代表所有客户端已经默认采用它。实现新协议或维护旧握手时，分别对照[版本协商与向后兼容说明](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning)。
 
 ---
 
@@ -2308,7 +2317,8 @@ npm publish --access public
 
 **官方资源**：
 - MCP官方文档：https://modelcontextprotocol.io/
-- MCP规范：https://modelcontextprotocol.io/specification/2025-11-25
+- MCP规范（本轮教程基线）：https://modelcontextprotocol.io/specification/2026-07-28
+- MCP规范（上一版，保留作历史）：https://modelcontextprotocol.io/specification/2025-11-25
 - Claude Code MCP文档：https://code.claude.com/docs/en/mcp
 - 官方服务器仓库：https://github.com/modelcontextprotocol/servers
 - TypeScript SDK：https://github.com/modelcontextprotocol/typescript-sdk
@@ -2327,9 +2337,9 @@ npm publish --access public
 > - [Claude Code文档](https://code.claude.com/docs/en/mcp) | 验证日期：2026-05-30
 
 **作者**：老金
-**更新日期**：2026年6月9日
-**版本**：V1.5（v2.1.158 release 摘录入差量）
+**更新日期**：2026年9月14日
+**版本**：V1.6（v2.1.270 release 摘录入差量）
 **字数统计**：约3,500行 / 28,000字
-**适用版本**：MCP规范 2025-11-25 / Claude Code v2.1.181
+**适用版本**：MCP规范 2026-07-28 / Claude Code v2.1.270
 
 ---

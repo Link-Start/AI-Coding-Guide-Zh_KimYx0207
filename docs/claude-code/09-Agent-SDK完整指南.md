@@ -9,13 +9,15 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：6-8小时
 > - **难度等级**：⭐⭐⭐ 中级进阶
-> - **更新日期**：2026年6月9日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **信息来源**：[官方概览](https://platform.claude.com/docs/zh-CN/agent-sdk/overview)、[GitHub Python SDK](https://github.com/anthropics/claude-agent-sdk-python)、[GitHub TypeScript SDK](https://github.com/anthropics/claude-agent-sdk-typescript)
 
 > **版本说明**：Claude Agent SDK（原名Claude Code SDK）是2025年Anthropic官方发布的开发工具包。本教程基于最新官方文档编写，如有更新请以官方为准。
 
 ---
+
+> **版本口径**：本章标注的 Claude Code 版本指运行时。Python 与 TypeScript Agent SDK 各有独立版本；安装、升级和调用参数要以所装 SDK 的 API 文档为准。
 
 ## 本课学习目标
 
@@ -638,7 +640,7 @@ Tools（工具）是Agent能够"做事"的关键。没有工具，Agent只能"�
 | **Bash** | 执行命令 | 运行脚本、安装依赖 |
 | **Glob** | 文件模式匹配 | 查找特定类型的文件 |
 | **Grep** | 搜索文件内容 | 在代码中查找关键词 |
-| **Task** | 创建子代理 | 并行处理复杂任务 |
+| **Agent** | 创建子代理 | 并行处理复杂任务 |
 | **WebSearch** | 网络搜索 | 查找最新信息 |
 
 **限制工具权限**：
@@ -1570,8 +1572,8 @@ async for message in query(prompt="...", options=options):
 | 场景 | 推荐模型 | 理由 |
 |------|---------|------|
 | 日常开发 | claude-sonnet-5 | 能力强、速度快、价格适中 |
-| 复杂推理 | claude-opus-4-8 | 最强能力，但价格高 |
-| 简单任务 | claude-haiku-4-5-20251001 | 最便宜，适合简单查询 |
+| 复杂推理 | 当前账号可用的 Opus 型号 | 适合复杂推理，先比较实际质量与价格 |
+| 简单任务 | claude-haiku-4-5-20251001 | 本章轻量任务示例，是否可用及价格以供应商为准 |
 
 ```python
 # 性价比之选
@@ -1799,9 +1801,11 @@ with open("session.json", "w") as f:
 
 **答**：支持Claude系列模型：
 
-- claude-opus-4-8（最强）
-- claude-sonnet-5（推荐）
-- claude-haiku-4-5-20251001（最快最便宜）
+- Opus：复杂推理任务，选择账号实际可用的型号
+- Sonnet：本章使用 `claude-sonnet-5` 演示
+- Haiku：本章使用 `claude-haiku-4-5-20251001` 演示
+
+这不是固定的完整模型目录。可用型号取决于供应商、账号和运行时版本；不要把旧示例中的某个型号理解成一直最强或最便宜。
 
 通过`model`参数指定：
 
@@ -1909,7 +1913,7 @@ async def rate_limited_query(prompts, delay=1.0):
 ---
 
 **课程版本**：V1.2
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月14日
 **作者**：老金
 
 ---
@@ -1918,7 +1922,7 @@ async def rate_limited_query(prompts, delay=1.0):
 
 | 版本 | 日期 | 修改内容 |
 |------|------|----------|
-| V1.2 | 2026-02-26 | 更新所有模型引用至最新4.6版本：Sonnet 5（claude-sonnet-5）、Opus 4.8（claude-opus-4-8）、Haiku 4.5（claude-haiku-4-5-20251001） |
+| V1.2 | 2026-02-26 | 更新模型配置示例；具体型号随后继续修订，当前可用范围见正文 |
 | V1.1 | 2025-12-24 | 修正所有模型名称为最新4.5版本（claude-sonnet-4-5-20250929、claude-opus-4-5-20251101、claude-3-5-haiku-20241022） |
 | V1.0 | 2025-12-19 | 初版发布 |
 

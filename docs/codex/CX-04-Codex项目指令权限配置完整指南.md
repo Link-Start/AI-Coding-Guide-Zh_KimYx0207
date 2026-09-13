@@ -15,7 +15,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐ 入门级
-> - **更新日期**：2026年6月18日
+> - **更新日期**：2026年9月14日
 > - **信息来源**：OpenAI Codex Config、Rules、Hooks、Settings、CLI 官方文档
 > - **前置要求**：已完成 [CX-01 安装](./CX-01-Codex-App安装与认证完整指南.md) 和 [CX-02 桌面工作流](./CX-02-Codex-App桌面工作流完整指南.md)
 
@@ -58,7 +58,7 @@
 
 ## 0. 配置系统的四层心智模型
 
-老金，我写项目指令时最关心的是让 Codex 少猜；项目规则越清楚，后面的修改越不容易跑偏。
+我写项目指令时最关心的是让 Codex 少猜；项目规则越清楚，后面的修改越不容易跑偏。
 
 你可以把 Codex 配置想成四层，从软到硬：
 
@@ -95,7 +95,7 @@
 1. **当前项目是否打开对了目录**：工作区错了，`AGENTS.md` 再好也读不到。
 2. **新线程是否读到 `AGENTS.md`**：旧线程可能仍停留在旧上下文。
 3. **App Settings 是否和任务风险匹配**：只读、日常写入、危险模式不能混用。
-4. **项目 `.codex/` 是否被信任**：未信任项目不会加载项目级 `.codex/` 配置层。
+4. **项目是否被信任**：未信任项目不会加载项目级 `.codex/` 配置层；CLI v0.150.0 起也不加载该项目的 `AGENTS.md`。文件存在但指令不生效时，先核对项目的信任状态。
 5. **Rules 是否匹配了真实命令前缀**：用 `match` / `not_match` 和 `execpolicy check` 测。
 6. **Hooks 是否需要信任或是否失败**：未信任、超时、路径错都会影响执行。
 
@@ -126,7 +126,7 @@ Do not modify files.
 
 在项目根目录创建 `AGENTS.md`：
 
-```markdown
+````markdown
 # AGENTS.md
 
 这份文件约束 Codex 在本项目里的工作方式，用来减少常见的 AI 编程失误。你可以在此基础上继续补充项目专属规则。
@@ -224,7 +224,7 @@ Do not modify files.
 - 因为过度复杂而返工的次数更少。
 - 澄清问题发生在动手前，而不是出错之后。
 - 每次修改都有明确验证方式。
-```
+````
 
 创建正式 `AGENTS.md` 前，先让 Codex 根据第一步的分析输出完整版本。命令必须来自项目文件或你亲自确认；没有确认的命令整行删除，不要留空、不要写占位。
 
@@ -411,7 +411,7 @@ App 用户优先通过这几处理解权限：
 | CI / 自动化 | 外部沙箱 + 最小权限 |
 | 涉及密钥 / 生产数据 | 默认拒绝，人工确认 |
 
-> **v0.133.0→v0.141.0 权限口径**：permission profiles 不再只是单个 approval mode。新版已支持 profile 列表、继承、managed `requirements.toml`、运行时刷新、named profiles 和更强的 Windows sandbox 集成；后续又补强了 cloud-managed config、remote-control grants、personal access token v2、plugin JSON 输出、配置错误展示、加密凭证、PostToolUse blocking、远程执行权限路径保留和 Windows sandbox stale credentials 修复。`--profile` 已成为 CLI / TUI permissions / sandbox flows 的主选择器，旧 profile 配置会走迁移提示；个人项目可以继续先用 App Settings，团队项目要把 profile、`AGENTS.md`、Rules、Plugins、MCP 和 sandbox 一起看。
+> **v0.133.0→v0.154.0 权限口径（核查日：2026-09-14）**：permission profiles 不再只是单个 approval mode。新版已支持 profile 列表、继承、managed `requirements.toml`、运行时刷新、named profiles 和更强的 Windows sandbox 集成；后续又补强了 cloud-managed config、remote-control grants、personal access token v2、plugin JSON 输出、配置错误展示、加密凭证、PostToolUse blocking、远程执行权限路径保留和 Windows sandbox stale credentials 修复。`--profile` 已成为 CLI / TUI permissions / sandbox flows 的主选择器，旧 profile 配置会走迁移提示；个人项目可以继续先用 App Settings，团队项目要把 profile、`AGENTS.md`、Rules、Plugins、MCP 和 sandbox 一起看。v0.153.0 之后还有两处要注意：Full Access 下 Guardian 会跳过纯确认类操作的复查，而 Guardian 记录能跨压缩、重启和用户主动创建的 fork 保留；记住的 MCP 工具批准按所选连接应用的账号保存，换用另一个账号时，以那个账号自己的审批记录和权限为准。
 
 实操时按这个顺序确认：
 
@@ -507,7 +507,7 @@ Rules 不适合：
 
 ## 8. Hooks：事件脚本
 
-Hooks 是事件触发脚本，适合做：
+Hooks 是事件触发的处理器，可以运行脚本，也可以调用已连接的 MCP 工具，适合做：
 
 - 命令执行前检查。
 - 工具执行后记录日志。
@@ -526,17 +526,21 @@ App 用户应先理解它的配置入口和风险：
 
 ### 8.1 Hooks 的执行机制
 
-Hooks 厚度不在“能写脚本”，而在你理解它进入了 agentic loop。它不是 Markdown 规则，而是真实命令：
+Hooks 的重点是它在 agentic loop 的哪个阶段运行。触发后，它会真正执行命令或调用工具：
 
 ```text
 某个事件发生
   -> Codex 找到匹配的 hook 配置
   -> 需要信任的 hook 先走 trust review
-  -> hook 命令在当前 session cwd 里运行
-  -> 输出、失败、超时都会影响体验
+  -> command handler 在当前 session cwd 里运行，或由 mcp_tool handler 调用已连接工具
+  -> 输出、失败、超时按对应事件的规则处理
 ```
 
-常见事件包括 `SessionStart`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、`PreCompact`、`PostCompact`、`UserPromptSubmit`、`SubagentStart`、`SubagentStop`、`Stop`。并不是每个事件都适合新手使用；团队最常见的是命令前检查、权限请求检查、命令后审计和停止时校验。
+常见事件包括 `SessionStart`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、`PreCompact`、`PostCompact`、`UserPromptSubmit`、`SubagentStart`、`SubagentStop`、`Stop`、`Interrupt`。团队最常用的是命令前检查、权限请求检查、命令后审计和停止时校验。
+
+CLI v0.148.0 起，命令 handler 可以设置 `"async": true` 在后台运行，适合日志和通知；后台输出在后续安全时点交给模型，不能阻断、批准或改写触发它的动作。需要拦截命令或作权限决定的检查仍应同步执行。同版还加入 `"type": "mcp_tool"` handler，通过 `server`、`tool` 和 `input` 调用已连接的 MCP 工具，仍受 hook 信任与输出规则约束。
+
+CLI v0.150.0 新增 `Interrupt`：只在顶层活动回合被中断时触发，不对子代理触发。它适合短暂清理或记录中断，默认超时 1 秒、最多 3 秒，不能阻止已经发生的中断。配置与事件输出格式见 [官方 Hooks 文档](https://developers.openai.com/codex/hooks)。
 
 示例：只在 Bash 命令前做策略检查：
 
@@ -571,7 +575,7 @@ Hooks 厚度不在“能写脚本”，而在你理解它进入了 agentic loop�
 | 写文件后跑格式化 | Hook | 事件触发更合适 |
 | 记录审计日志 | Hook | 需要把事件写到日志系统 |
 | 统一代码风格 | `AGENTS.md` + 测试 / lint | Rules 不适合写风格 |
-| 发布流程 SOP | Skill | 长流程应该沉淀为 Skill |
+| 发布流程 SOP | Skill | 长流程应该做成 Skill |
 
 能用 Rules 解决的命令边界，不要先写 Hook。Hook 的自由度更高，维护成本和安全风险也更高。
 
@@ -1935,7 +1939,7 @@ When the user asks for documentation-only edits:
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月14日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

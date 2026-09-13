@@ -80,7 +80,7 @@ Review 篇的核心是：Codex 改完不等于你可以合并。你要能读懂 
 
 ## 0. Review 的底层逻辑
 
-老金我把 Review 单独成课，是因为能看懂 diff、评论和 PR 状态，才算真正掌握 Codex App 工作流。
+我把 Review 单独成课，是因为能看懂 diff、评论和 PR 状态，才算真正掌握 Codex App 工作流。
 
 App Review 面板不是"Codex 的成果展示页"，而是 Git diff 工作台：
 

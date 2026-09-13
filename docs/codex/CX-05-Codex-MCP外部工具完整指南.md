@@ -15,7 +15,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐ 入门级
-> - **更新日期**：2026年5月30日
+> - **更新日期**：2026年9月14日
 > - **信息来源**：OpenAI Codex MCP 官方文档、Codex App Settings、Codex CLI MCP 命令
 > - **前置要求**：已完成 [CX-01 安装](./CX-01-Codex-App安装与认证完整指南.md)、[CX-02 桌面工作流](./CX-02-Codex-App桌面工作流完整指南.md)、[CX-04 权限配置](./CX-04-Codex项目指令权限配置完整指南.md)
 
@@ -83,7 +83,7 @@ MCP 章节最常见的误区是：把 MCP 当成“搜索”“插件”“账�
 
 ## 0. MCP 的工作机制
 
-我在 MCP 这一讲里坚持要求列来源，是因为老金不希望读者把模型记忆当成官方证据。
+我在 MCP 这一讲里坚持要求列来源，是因为我不希望读者把模型记忆当成官方证据。
 
 一次 MCP 调用可以理解为：
 
@@ -232,9 +232,13 @@ App 用户重点不是背协议，而是知道工具从哪里来、权限是什�
 - `enabled_tools` / `disabled_tools`：限制工具集合。
 - `default_tools_approval_mode`：决定工具默认审批行为。
 - 单工具 approval override：高风险工具单独要求审批。
-- `startup_timeout_sec` / `tool_timeout_sec`：避免工具卡死太久。
+- `startup_timeout_sec` / `tool_timeout_sec`：分别控制单个 server 的启动超时和工具调用超时。
+- `mcp_optional_startup_grace_ms`（CLI v0.151.0 起）：顶层配置，控制首次收集工具目录时等待可选 MCP server 的共享时限，默认 1000 毫秒。设为 `0` 表示改为等待各 server 自己的 `startup_timeout_sec`，不是立即跳过等待。
+- `mcp_servers.<id>.tools.<tool>.output_token_limit`（CLI v0.152.0 起）：正整数，覆盖某个工具的默认输出预算。它控制结果截断，不是调用超时；设得太小可能截掉需要的证据。
 
-字段会随官方 Config Reference 更新，教程示例只讲用途，不把所有字段写成静态背诵表。
+CLI v0.152.0 起，server 名称支持 `:`、`@`、`/`、`.`。写 TOML 时，包含特殊字符的名称要加引号，例如 `[mcp_servers."team/docs.v1"]`；单工具设置则写在 `[mcp_servers."team/docs.v1".tools.search]`。其中 server 名和 `search` 都要替换为 `/mcp` 里实际显示的名称。
+
+字段和类型见 [官方 Config Reference](https://developers.openai.com/codex/config-reference)。排查时先区分“还没发现工具”“调用超时”和“输出被截断”，再改对应设置。
 
 ### 6.2 密钥和环境变量怎么放
 
@@ -303,9 +307,11 @@ bearer_token_env_var = "DOCS_MCP_TOKEN"
 | CLI 能看到，App 看不到 | App 和 CLI 当前配置层或会话状态不同 | 回到 App 线程核对，以 App 使用结果为准 |
 | server 启动失败 | 命令不存在、依赖未安装、PATH 不一致、timeout 太短 | 在终端单独跑启动命令，检查日志 |
 | 工具调用超时 | server 慢、网络慢、工具 timeout 太短 | 缩小任务或调整 timeout |
-| OAuth 失败 | 回调 URL / port、账号权限、组织策略问题 | 重新 login，确认 callback 设置 |
+| OAuth 失败 | 回调 URL / port、账号权限、组织策略问题 | 完成重新登录，再用 `/mcp` 核对连接状态和可用工具 |
 | 工具要求过大权限 | server 默认工具太宽 | 用 enabled_tools / disabled_tools 收窄 |
 | 结果不可信 | 来源不明、时间过期、权限范围不清 | 要求 Codex 列出来源和查询条件 |
+
+CLI v0.148.0 已支持 OAuth 重新认证后恢复 MCP，无需为此重启整个 Codex；v0.152.0 又修复了缓存刷新、远程插件变化和认证重试时的工具可用性。v0.154.0 会在刷新失败时提示登录，也不会自动重放已被拒绝的工具调用。登录完成后先核对状态，再决定是否重试原动作。版本依据见 [官方 changelog](https://developers.openai.com/codex/changelog)。
 
 排障时不要第一步就重装。先确认“配置在哪一层、当前线程是否加载、server 是否启动、工具是否可见、调用是否被审批拦住”。
 
@@ -1447,7 +1453,7 @@ Do not write to the issue tracker.
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月14日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

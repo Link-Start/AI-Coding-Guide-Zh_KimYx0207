@@ -2,7 +2,7 @@
 
 主要来源：OpenAI Codex Subagents、App Features、CLI Slash Commands 官方文档。
 
-> **2026-08-06 多 Agent 口径**：CLI 0.145.0 起 **多 Agent V2 已稳定**——可配置 subagent 模型、推理等级、并发上限，并恢复 V1 时期部分被限制的角色。委派模式分三档（禁用 / 仅显式请求 / 主动），可在线程 + 回合级别切换；父拥有的 subagent 线程**只读**，agent 线程工作区相互隔离，Guardian reviewer 工具权限被收窄。agent 任务存储从 CSV 迁到 SQLite。App-server 能列出后代线程并通过某一轮 fork 历史。演示时先讲"单 agent 边界"，再讲 V2 的可配置并发；不要第一天就开高并发。
+> **2026-09-14 多 Agent 口径**：CLI 0.145.0 起 **多 Agent V2 已稳定**——可配置 subagent 模型、推理等级、并发上限，并恢复 V1 时期部分被限制的角色。委派模式分三档（禁用 / 仅显式请求 / 主动），可在线程 + 回合级别切换；父拥有的 subagent 线程由父线程负责控制；子代理继承当前沙盒与审批边界，是否只读或使用独立工作区要看实际配置。Guardian reviewer 工具权限被收窄。agent 任务存储从 CSV 迁到 SQLite。App-server 能列出后代线程并通过某一轮 fork 历史。演示时先讲"单 agent 边界"，再讲 V2 的可配置并发；不要第一天就开高并发。本篇当前基线是 CLI 0.154.0（2026-09-09）：0.153.0 起 Guardian 审查记录可跨压缩、重启和用户主动创建的 fork 保留，记住的 MCP 工具批准按所选连接应用账号隔离；0.154.0 新增实验性 worktrees（`--worktree` / `/worktree`），可为新建或 fork 的会话创建独立工作树。并行写入前仍要确认每个任务的实际目录和文件所有权。
 
 ---
 
@@ -15,7 +15,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐⭐⭐ 进阶级
-> - **更新日期**：2026年5月30日
+> - **更新日期**：2026年9月14日
 > - **信息来源**：OpenAI Codex Subagents、App Features、CLI Slash Commands 官方文档
 > - **前置要求**：已完成CX-01至CX-07，熟悉App基本操作
 
@@ -80,7 +80,7 @@ Subagents 的重点不是"多开几个 agent"，而是把并行工作变成可�
 
 ## 0. 多 Agent 协作模型
 
-老金我讲 Codex Subagents 时，会先问文件所有权和合并责任；并行不是目的，可靠收口才是目的。
+我讲 Codex Subagents 时，会先问文件所有权和合并责任；并行不是目的，可靠收口才是目的。
 
 一次健康的 Subagents 任务应该像这样：
 
@@ -216,7 +216,7 @@ Subagents 适合把一个任务拆成多个相对独立的子任务：
 Worktree thread + Subagents + Review
 ```
 
-这样既能分工，又能降低污染主工作区的风险。
+这样既能分工，又能降低污染主工作区的风险。开启 Subagents 本身不保证每个子代理都有独立 Git 工作树；要隔离两个实现方向，应先分别创建 worktree，再分配任务。子代理的文件读写能力仍按继承的沙盒和审批设置判断。依据见 [官方 Subagents 文档](https://developers.openai.com/codex/multi-agent) 和 [v0.154.0 发布记录](https://github.com/openai/codex/releases/tag/rust-v0.154.0)。
 
 ## 7. Subagents 与 Skills
 
@@ -826,9 +826,9 @@ Do not edit files.
 
 目标是让团队把“执行”和“审查”分开。
 
-### 20.4 第四周：沉淀 agent 模板
+### 20.4 第四周：固化 agent 模板
 
-团队可以沉淀三类模板：
+团队可以固化三类模板：
 
 ```text
 Explorer template: 只读探索，返回地图。
@@ -1569,7 +1569,7 @@ Fix auth redirect callback URL loss.
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月14日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

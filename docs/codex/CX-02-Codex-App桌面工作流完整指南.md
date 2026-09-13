@@ -15,7 +15,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：3-4小时
 > - **难度等级**：⭐ 零基础入门
-> - **更新日期**：2026年6月18日
+> - **更新日期**：2026年9月13日
 > - **信息来源**：OpenAI Codex App Features、Settings、Review、Automations、MCP、Skills、Plugins 官方文档
 > - **前置要求**：已完成 [CX-01 Codex App 安装与认证](./CX-01-Codex-App安装与认证完整指南.md)
 
@@ -24,6 +24,8 @@
 ## 📚 本课学习目标
 
 完成本课学习后，你将能够：
+
+> **2026-09-13 当前基线（App 26.908）**：本章主线（Thread、Worktree、Review、Terminal、Settings）没变，26.908 加的是几处入口：悬浮 **Pets** 控件上可以直接快速对话，`@` 带上下文、`$` 选 skill；Windows 上同时按下两个 Alt 键截 **Appshot**；会话的 **Sources** 面板里能直接打开文件，预览不了的可以下载；**Codex Micro** 可以绑一个键把常用文本插进当前提示而不发送；宠物能在设置里恢复默认尺寸，听写会遵循已保存的主语言偏好；关闭浏览器标签时标签宽度和滚动位置也更稳了。都是加法，先学完本章主线再按需打开。
 
 > **2026-06-18 App 口径**：本章按 Codex App 26.609 更新。新增重点补强主控台能力：Developer mode / CDP 浏览器调试、composer `/init`、Migrate to Codex、使用量重置 UI、Windows Computer Use per-app controls，以及 Automations 继承所选 approval mode。读者仍然先学 Thread、Workspace、Review、Settings，再按需打开这些能力。
 
@@ -82,7 +84,7 @@
 
 ## 0. App 的核心模型
 
-老金在这篇里把 App 当主控台讲，因为 Codex 新手最需要先看见线程、终端、Review 和权限在哪里。
+我在这篇里把 App 当主控台讲，因为 Codex 新手最需要先看见线程、终端、Review 和权限在哪里。
 
 
 Codex App 可以理解为一个桌面开发主控台。它把这些能力放到同一个工作流里：
@@ -116,7 +118,7 @@ Codex App 可以理解为一个桌面开发主控台。它把这些能力放到�
 | Settings | 模型、审批、沙盒、连接器、插件等配置入口 | 不是一次设置永远适用；不同项目风险不同 |
 | Connector / App | GitHub、Drive、Slack 等外部账号连接 | 授权范围要单独看，不等于本地文件权限 |
 | MCP | 外部工具协议 | 它给 Codex 工具，不是让 Codex “更懂一切” |
-| Skill | 可复用工作流 | 适合沉淀 SOP，不适合连接实时外部系统 |
+| Skill | 可复用工作流 | 适合固化 SOP，不适合连接实时外部系统 |
 | Automation | 后台或周期任务 | 适合重复检查，不适合模糊大改 |
 | Cloud handoff | 把任务交给云端环境继续做 | Cloud 看不到你未同步的本机私有状态 |
 
@@ -374,7 +376,7 @@ App 用户应该先理解：
 
 ## 8. App 中的 Skills
 
-Skills 是可复用工作流。适合把“每次都要重复说的步骤”沉淀下来。
+Skills 是可复用工作流。适合把“每次都要重复说的步骤”固定下来。
 
 例如：
 
@@ -466,7 +468,7 @@ GitHub / PR 详见 CX-10。
   -> 先用自然语言或 slash command
 
 重复出现的工作流
-  -> 沉淀为 Skill
+  -> 做成 Skill
 
 需要外部工具或服务
   -> 用 MCP / Connector / Plugin
@@ -1375,7 +1377,7 @@ App 工作流的核心是“收束”。不收束的线程第二天会变成上�
 - 会设计可复用 Skill。
 - 会判断什么时候开 subagents。
 - 会把 App Review 嵌入 PR 流程。
-- 会把失败经验沉淀进团队模板。
+- 会把失败经验写进团队模板。
 ```
 
 ### 29.4 团队阶段
@@ -1625,7 +1627,7 @@ Codex 可能给出：
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月13日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

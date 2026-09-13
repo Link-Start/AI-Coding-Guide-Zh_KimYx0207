@@ -9,17 +9,19 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：4-6小时
 > - **难度等级**：⭐⭐ 入门级（有Claude Code基础即可）
-> - **更新日期**：2026年6月18日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **前置要求**：已完成Claude Code安装和基础使用
 
 ---
 
 ## 本课学习目标
 
-老金，我写 Hooks 这类内容时不会只给脚本，重点是让团队知道什么时候该拦、什么时候不该拦。
+我写 Hooks 这类内容时不会只给脚本，重点是让团队知道什么时候该拦、什么时候不该拦。
 
 > **2026-06-18 操作口径**：v2.1.178 起权限规则支持 `Tool(param:value)` 形式，例如只允许特定模型的 `Agent(model:opus)`；v2.1.176 修复了 Hook `if` 条件的路径匹配。团队课程里讲 Hook 时，要把“匹配范围”和“参数级权限”分开演示，避免只用一个大而全的 allow/deny 例子。
+
+> **2026-09-14 当前基线（v2.1.270）**：v2.1.251 新增 `PreModelSwitch`（切换前允许、拒绝或请求确认）和 `PostModelSwitch`（切换后补充上下文）。两个事件不能互换：后者不负责撤销已经完成的切换。`SessionStart` 的 resume hook 还可取得会话陈旧度和预估重新缓存成本。`PermissionRequest` 在 `--print` 模式下不触发的问题已在 v2.1.268 修复；阻断型 `Stop` 导致下一轮丢失推理、部分模型错过缓存的问题已在 v2.1.259 修复。v2.1.268 还修复了 `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` 对未单独配置 `timeout` 的 SessionEnd hook 不生效的问题。来源：[官方 Hooks 文档](https://code.claude.com/docs/en/hooks)与[changelog](https://code.claude.com/docs/en/changelog)。
 
 完成本课学习后，你将能够：
 
@@ -55,12 +57,12 @@
 
 ### 路径B：完整学习（4-6小时）
 
-**适合人群**：想深入理解Hooks，掌握所有类型和高级用法
+**适合人群**：想深入理解Hooks，掌握常用事件和高级用法
 
 **学习顺序**：从头到尾所有章节
 
 **建议分段学习**：
-- 第1天（2小时）：第1-3部分（理解+15种类型）
+- 第1天（2小时）：第1-3部分（理解+常用事件）
 - 第2天（2小时）：第4-5部分（实战场景+故障排查）
 - 第3天（1小时）：第6-7部分（FAQ+附录）
 
@@ -266,12 +268,15 @@ Claude处理提示词
 | **Notification** | 通知发送时 | 日志记录、桌面通知 | ❌ 否 |
 | **SessionStart** | 会话开始时 | 环境初始化 | ❌ 否 |
 | **SessionEnd** | 会话结束时 | 清理临时文件 | ❌ 否 |
-| **Stop / StopFailure** | AI 正常停止 / 异常停止时 | 保存状态、错误告警 | ❌ 否 |
-| **TaskCreated / TaskCompleted** | 子任务创建 / 完成时 | 子代理日志、任务收集 | ❌ 否 |
+| **Stop** | Claude 准备结束响应时 | 完成条件校验 | ✅ 可要求继续 |
+| **StopFailure** | API 错误导致回合停止时 | 错误告警、记录失败 | ❌ 无决策控制 |
+| **TaskCreated / TaskCompleted** | 任务创建 / 标记完成时 | 创建校验、完成条件校验 | ✅ 可回滚创建 / 阻止标记完成 |
 | **PermissionDenied** | 权限被拒绝时 | 审计、自动补救提示 | ❌ 否 |
-| **PreCompact / PostCompact** | 上下文压缩前 / 后 | 保存关键上下文、记录 token 变化 | ❌ 否 |
+| **PreCompact** | 上下文即将压缩时 | 保存关键上下文、压缩前校验 | ✅ 可阻止压缩 |
+| **PostCompact** | 上下文压缩完成后 | 记录压缩摘要 | ❌ 不撤销压缩 |
 | **CwdChanged / FileChanged** | 工作目录切换 / 文件变化时 | 同步环境、触发检查 | ❌ 否 |
-| **Elicitation** | MCP 请求额外交互输入时 | 记录交互日志、输入校验 | ❌ 否 |
+| **Elicitation** | MCP 请求额外交互输入时 | 接受、拒绝或取消请求 | ✅ 可拒绝请求 |
+| **ElicitationResult** | 用户响应交互输入后、返回 MCP 前 | 验证或修改响应 | ✅ 可拒绝响应 |
 
 > 💡 **记忆方式**：先记三大高频入口 `UserPromptSubmit`、`PreToolUse`、`PostToolUse`，再按“失败 / 任务 / 文件 / 压缩 / 交互”五个补充事件族扩展。
 
@@ -582,16 +587,16 @@ echo '{"tool_name": "Write", "tool_input": {"file_path": "test.txt"}}' | python 
 
 **接下来可以**：
 
-- 继续学习15种Hook类型（第三部分）
+- 继续学习各类 Hook 事件（第三部分）
 - 学习实战应用场景（第四部分）
 - 遇到问题查看故障排查（第五部分）
 
 ---
 
-## 第三部分：15种Hook类型详解
+## 第三部分：常用 Hook 事件详解
 
 
-> **本节目的**：掌握所有Hook类型的用法
+> **本节目的**：掌握常用 Hook 事件的用法与控制边界
 >
 > ⏱️ **预计时间**：1.5-2小时
 
@@ -631,18 +636,21 @@ PreToolUse Hook可以返回**决策指令**控制工具是否执行。
 ```json
 {
   "hookSpecificOutput": {
-    "permissionDecision": "deny"
-  },
-  "message": "禁止修改production目录下的文件"
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "禁止修改production目录下的文件"
+  }
 }
 ```
+
+`hookEventName` 必填，拒绝原因写在同级的 `permissionDecisionReason`，不要写成顶层 `message`。
 
 **旧版API（已废弃但仍支持）** — 通过 `decision` 字段：
 
 ```json
 {
-  "decision": "deny",
-  "message": "禁止修改production目录下的文件"
+  "decision": "block",
+  "reason": "禁止修改production目录下的文件"
 }
 ```
 
@@ -653,7 +661,7 @@ PreToolUse Hook可以返回**决策指令**控制工具是否执行。
 | `"allow"` | 允许执行，绕过权限系统 | ✅ 是 |
 | `"deny"` | 拒绝执行，原因会反馈给Claude | ❌ 否 |
 | `"ask"` | 暂停，询问用户决定 | 🤔 等待用户决定 |
-| 无输出 | 默认允许 | ✅ 是 |
+| 无输出 | 不做决策，交给正常权限流程 | 按权限设置决定 |
 
 **旧版决策值**（`decision`，已废弃）：
 
@@ -662,7 +670,7 @@ PreToolUse Hook可以返回**决策指令**控制工具是否执行。
 | `"approve"` | `"allow"` | 允许执行 |
 | `"block"` | `"deny"` | 拒绝执行 |
 
-> **PostToolUse 和 UserPromptSubmit 的决策值**：这两个Hook类型使用 `"block"` 来阻止/提供反馈，无输出则默认允许。
+> **PostToolUse 和 UserPromptSubmit 的决策值**：两者都可返回 `"block"`，但含义不同。UserPromptSubmit 可以阻止提示词提交；PostToolUse 发生在工具执行之后，只能把阻断反馈交给 Claude，不能撤销已经发生的工具操作。无输出表示这个 Hook 没有追加决策。
 
 #### 完整示例1：文件保护Hook
 
@@ -708,7 +716,7 @@ for protected in protected_dirs:
         print(json.dumps(decision, ensure_ascii=False))
         sys.exit(0)
 
-# 允许执行（无输出=默认allow）
+# 不做决策，交给正常权限流程
 sys.exit(0)
 ```
 
@@ -834,16 +842,18 @@ sys.exit(0)
 
 #### 输入参数（通过stdin的JSON）
 
+下面省略会话等公共字段，只展示工具相关部分。`tool_input` 和 `tool_response` 的具体结构随工具变化，不能把 Write 的返回字段当成所有工具的通用字段：
+
 ```json
 {
   "tool_name": "Write",
   "tool_input": {
-    "file_path": "C:/project/src/app.js",
+    "file_path": "C:\\project\\src\\app.js",
     "content": "console.log('Hello');"
   },
-  "tool_output": {
-    "success": true,
-    "message": "File written successfully"
+  "tool_response": {
+    "filePath": "C:\\project\\src\\app.js",
+    "type": "create"
   }
 }
 ```
@@ -852,7 +862,7 @@ sys.exit(0)
 |------|------|------|
 | `tool_name` | string | 工具名称 |
 | `tool_input` | object | 工具的输入参数 |
-| `tool_output` | object | 工具的输出结果 |
+| `tool_response` | 依工具而定 | 工具的返回结果；字段名不是 `tool_output` |
 
 #### 输出格式
 
@@ -1520,85 +1530,131 @@ sys.exit(0)
 
 #### WorktreeCreate（工作树创建时触发）
 
-**触发时机**：Claude Code 创建新的 Git Worktree 时自动触发
+**触发时机**：通过 `claude --worktree`、配置了 `isolation: "worktree"` 的子代理或需要隔离的后台会话创建工作副本时。
 
-**典型用途**：
-- 初始化工作树特定的环境配置
-- 安装工作树所需的依赖
-- 设置工作树专属的环境变量
-- 记录工作树创建日志
-
-**配置示例**：
-
-```json
-{
-  "hooks": {
-    "WorktreeCreate": [
-      {
-        "command": "echo \"新工作树已创建: $(date)\" >> ~/.claude/worktree.log",
-        "timeout": 10000
-      }
-    ]
-  }
-}
-```
+配置这个 Hook 后，Claude Code 会把默认的 Git 创建过程交给它。Hook 必须实际创建工作目录并返回路径；仅写一条“已创建”的日志会使创建失败。适合自定义 Git 流程，或接入 SVN、Perforce、Mercurial 等版本控制系统。
 
 **输入数据**（通过 stdin 接收 JSON）：
 
 ```json
 {
-  "worktree_path": "/path/to/worktree",
-  "branch": "feature/new-feature"
+  "session_id": "example-session",
+  "transcript_path": "/path/to/transcript.jsonl",
+  "cwd": "/path/to/project",
+  "hook_event_name": "WorktreeCreate",
+  "name": "feature-auth"
 }
 ```
 
-#### WorktreeRemove（工作树删除时触发）
+`name` 是用户指定或自动生成的工作树短名称。此时目录还没有由默认流程创建，输入里没有供你直接使用的 `worktree_path` 或 `branch`。
 
-**触发时机**：Claude Code 删除 Git Worktree 时自动触发
+**完整示例：由 Hook 创建 Git 工作树**
 
-**典型用途**：
-- 清理工作树相关的临时文件
-- 释放工作树占用的资源
-- 记录工作树删除日志
-- 归档工作树的工作成果
+适用于已有提交的 Git 仓库，需要 Git 和 Python 3。把下面代码保存为项目中的 `.claude/hooks/create-worktree.py`。示例只接受字母或数字开头的短名称，创建 `hook-worktree/<name>` 新分支；目录或分支已存在时直接报错，不覆盖既有成果。
 
-**配置示例**：
+```python
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
 
-```json
-{
-  "hooks": {
-    "WorktreeRemove": [
-      {
-        "command": "echo \"工作树已删除: $(date)\" >> ~/.claude/worktree.log",
-        "timeout": 10000
-      }
-    ]
-  }
-}
+request = json.load(sys.stdin)
+name = request["name"]
+if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name):
+    raise ValueError("worktree name must be a simple slug")
+
+root = Path(subprocess.run(
+    ["git", "-C", request["cwd"], "rev-parse", "--show-toplevel"],
+    check=True, capture_output=True, text=True,
+).stdout.strip()).resolve()
+base = root / ".claude" / "worktrees"
+for parent in (root / ".claude", base):
+    if parent.is_symlink():
+        raise ValueError("worktree parent must not be a symlink")
+base.mkdir(parents=True, exist_ok=True)
+target = base / name
+if target.exists() or target.is_symlink():
+    raise FileExistsError(target)
+
+branch = "hook-worktree/" + name
+subprocess.run(
+    ["git", "check-ref-format", "--branch", branch],
+    check=True, stdout=sys.stderr,
+)
+subprocess.run(
+    ["git", "-C", str(root), "worktree", "add", "-b", branch, str(target), "HEAD"],
+    check=True, stdout=sys.stderr,
+)
+print(str(target.resolve()))
 ```
 
-**实战场景：工作树生命周期管理**
+将下列事件合并到现有 `.claude/settings.json` 的 `hooks` 中。这里使用 exec form，脚本路径作为独立参数，能处理项目路径中的空格；若本机 Python 命令叫 `python3`，相应修改 `command`。
 
 ```json
 {
   "hooks": {
     "WorktreeCreate": [
       {
-        "command": ".claude/hooks/worktree-init.sh",
-        "timeout": 30000
-      }
-    ],
-    "WorktreeRemove": [
-      {
-        "command": ".claude/hooks/worktree-cleanup.sh",
-        "timeout": 15000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/create-worktree.py"],
+            "timeout": 30
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-> ⚠️ **注意**：WorktreeCreate 和 WorktreeRemove 都是**不可阻止**的Hook，它们只用于执行附加操作，不能阻止工作树的创建或删除。
+**输出契约**：command Hook 把创建目录的路径放在 stdout 最后一条非空行，其他日志写 stderr。非零退出、没有返回路径，或返回的目录无法进入，都会使创建失败。优先返回规范化的绝对路径；不要含 `.`、`..`，也不要经过仓库内部的符号链接。HTTP Hook 则通过 `hookSpecificOutput.worktreePath` 返回路径，并设置 `hookEventName: "WorktreeCreate"`。
+
+自定义创建接管了整个默认流程，`.worktreeinclude` 不会自动处理；需要复制哪些本地配置或执行哪些初始化步骤，要由创建脚本明确实现。这里只演示创建工作树，没有安装依赖或复制本地配置。
+
+#### WorktreeRemove（工作树删除时触发）
+
+**触发时机**：工作树即将被移除时，例如退出工作树会话并选择删除，或隔离子代理结束。输入使用 `worktree_path`，这与创建事件的 `name` 不同：
+
+```json
+{
+  "session_id": "example-session",
+  "transcript_path": "/path/to/transcript.jsonl",
+  "cwd": "/path/to/project",
+  "hook_event_name": "WorktreeRemove",
+  "worktree_path": "/path/to/project/.claude/worktrees/feature-auth"
+}
+```
+
+Git 工作树由 Claude Code 使用 `git worktree remove` 清理。下面是可选的调试 Hook，只把收到的删除路径写到 stderr，不承担删除动作：
+
+```json
+{
+  "hooks": {
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "-c",
+              "import json, sys; data = json.load(sys.stdin); print('WorktreeRemove requested: ' + data['worktree_path'], file=sys.stderr)"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+如果用 WorktreeCreate 创建了非 Git 工作副本，还必须自己实现配套的清理逻辑：从 stdin 读取 `worktree_path`，先核对规范化路径和允许清理的根目录，再清理该工作副本；只记录日志不会完成清理。没有配套清理 Hook 时，目录会留在磁盘上。
+
+**失败契约**：WorktreeRemove 非零退出且目标目录仍存在时，移除失败；后台会话删除也会保留对应会话。它的 JSON 决策字段会被忽略，不能靠 `continue: false` 代替退出码；已被脚本删除的内容也不会因此恢复。完整规则见 [官方 WorktreeCreate](https://code.claude.com/docs/en/hooks#worktreecreate) 与 [WorktreeRemove](https://code.claude.com/docs/en/hooks#worktreeremove)。
 
 #### 与 `--worktree` 启动参数的关系
 
@@ -1647,7 +1703,7 @@ claude -w
 ```
 
 **Hook 的角色**：
-- **Git 用户**：直接使用 `claude -w` 即可，Hook 是可选的增强（如自动安装依赖）
+- **Git 用户**：直接使用 `claude -w` 即可；只有需要接管默认创建流程时才配置 WorktreeCreate。配置后要负责实际创建，不能只添加安装依赖或日志命令。
 - **非 Git 用户**（SVN/Perforce/Mercurial）：通过 WorktreeCreate/WorktreeRemove Hook 自定义工作树的创建和清理逻辑，替代默认的 Git 行为
 
 ---
@@ -1672,8 +1728,13 @@ claude -w
   "hooks": {
     "SubagentStart": [
       {
-        "command": "echo \"子代理已启动: $(date)\" >> ~/.claude/subagent.log",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"子代理已启动: $(date)\" >> ~/.claude/subagent.log",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
@@ -1682,7 +1743,7 @@ claude -w
 
 #### SubagentStop（子代理停止时触发）
 
-**触发时机**：子代理完成任务或被终止时自动触发
+**触发时机**：子代理准备结束响应时触发。可以返回 `decision: "block"` 和 `reason` 要求它继续处理未完成事项；不要把它当成所有强制终止都会经过的清理保证。
 
 **典型用途**：
 - 收集子代理执行结果
@@ -1709,13 +1770,23 @@ claude -w
   "hooks": {
     "PermissionRequest": [
       {
-        "command": "python .claude/hooks/permission-policy.py",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "timeout": 5,
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/permission-policy.py"
+            ]
+          }
+        ]
       }
     ]
   }
 }
 ```
+
+这里的 `permission-policy.py` 是扩展入口，需先创建脚本并实现具体策略：从 stdin 读取权限请求，在退出 `0` 时通过 `hookSpecificOutput` 返回 `hookEventName: "PermissionRequest"` 和 `decision.behavior`（`allow` / `deny`）。不要把一个尚不存在的脚本路径当成完整的自动审批方案；精确结构见 [官方 PermissionRequest 参考](https://code.claude.com/docs/en/hooks#permissionrequest)。
 
 ---
 
@@ -1723,12 +1794,14 @@ claude -w
 
 > **v2.1.49+ 新增**：在 Claude Code 执行上下文压缩（Compact）前触发。
 
-**触发时机**：当对话上下文即将被压缩时
+**触发时机**：当对话上下文即将被压缩时；matcher 可用 `manual` 或 `auto`。
 
 **典型用途**：
 - 在压缩前保存关键上下文信息
 - 记录压缩事件日志
-- 导出当前对话状态
+- 在必要校验未完成时阻止压缩
+
+**控制方式**：退出码 `2`，或退出 `0` 并返回 `{"decision":"block"}`，都能阻止压缩。手动 `/compact` 的 stderr 会显示给用户。阻止提前触发的自动压缩时，会话继续保持未压缩状态；如果压缩是为恢复 API 已返回的上下文超限错误而触发，阻止它会让原错误继续暴露、本次请求失败。`continue` 和 `systemMessage` 在这个事件中会被忽略。
 
 ---
 
@@ -1736,25 +1809,29 @@ claude -w
 
 > **v2.1.49+ 新增**：在 Claude Code 配置发生变更时触发。
 
-**触发时机**：settings.json 或其他配置文件被修改时
+**触发时机**：会话中的设置文件、部分受管策略文件或 Skill 文件变化时，输入中的 `source` 标明来源，`file_path` 可能提供具体路径。
 
 **典型用途**：
 - 配置变更审计和日志记录
-- 自动同步配置到其他环境
-- 配置变更通知
+- 校验新的项目或用户设置
+- 阻止不符合策略的新设置应用到当前会话
+
+**控制方式**：退出码 `2` 或 `{"decision":"block"}` 可阻止当前会话应用新配置，不会回滚磁盘上已经写入的文件。`policy_settings` 是例外：本机受管设置文件变化会触发审计，但阻断结果被忽略；服务端受管设置下发或刷新不触发此事件。
 
 ---
 
 ### 3.12 TeammateIdle（队友空闲）🆕
 
-> **v2.1.49+ 新增**：在多代理协作场景中，当队友代理进入空闲状态时触发。
+> **v2.1.49+ 新增**：在多代理协作场景中，队友即将进入空闲状态时触发。
 
-**触发时机**：协作中的队友代理完成当前任务、进入空闲状态时
+**触发时机**：队友完成当前回合、准备空闲时；不支持 matcher。
 
 **典型用途**：
-- 自动分配待处理任务给空闲队友
+- 检查交付文件或验证结果是否齐全
 - 发送状态通知
-- 协调多代理工作流
+- 把未完成事项反馈给队友继续处理
+
+**控制方式**：退出码 `2` 会把 stderr 反馈给队友，让它继续工作而非进入空闲。另一种控制是返回 `{"continue":false,"stopReason":"..."}`，这会停止该队友；两者作用相反，不能混用。
 
 ---
 
@@ -1768,12 +1845,12 @@ claude -w
 
 **触发时机**：当API错误（429限流、401认证失败、500服务器错误等）导致会话异常停止时触发
 
-> ⚡ **与Stop的区别**：`Stop` 是正常结束（用户主动退出、任务完成），就像下班正常关灯锁门；`StopFailure` 是异常中断，就像突然停电——你需要知道发生了什么并采取措施。
+> **与 Stop 的区别**：`Stop` 在 Claude 准备结束响应时触发，可要求继续；`StopFailure` 在 API 错误导致回合结束时替代 Stop。用户退出会话属于 SessionEnd，不能与 Stop 混为一谈。
 
 **典型用途**：
 - 发送告警通知（Slack/邮件/钉钉）
 - 记录错误日志用于后续分析
-- 触发自动重试或降级逻辑
+- 记录恢复线索，供后续重试或降级时使用
 
 **配置示例**：
 
@@ -1782,15 +1859,23 @@ claude -w
   "hooks": {
     "StopFailure": [
       {
-        "command": "python .claude/hooks/alert-on-failure.py",
-        "timeout": 10000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "timeout": 10,
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/alert-on-failure.py"
+            ]
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-> 📝 **输入数据**：StopFailure的stdin JSON中包含 `error` 字段，携带具体的错误类型和消息，可用于区分限流、认证失败等不同场景。
+> **输入与控制**：`error` 是错误类型（如 `rate_limit`），具体说明在可选的 `error_details` 中，`last_assistant_message` 此时可能是展示给用户的 API 错误文本。除 `terminalSequence` 外，输出和退出码均不参与决策，不能靠返回 block 或 continue 重启失败的回合。示例中的 `alert-on-failure.py` 需要你先实现；可只记录错误类型和必要的排障信息。
 
 ---
 
@@ -1801,9 +1886,9 @@ claude -w
 > 🎯 **生活类比**：就像搬家后清点物品——压缩完成后，你想知道"丢掉了多少东西、还剩多少空间"。
 
 **典型用途**：
-- 记录压缩前后的token数量变化
-- 触发上下文恢复操作（如重新加载关键文件）
-- 日志记录用于监控上下文使用趋势
+- 记录 `trigger`（manual / auto）和 `compact_summary`
+- 按压缩摘要更新外部记录
+- 记录压缩完成的时间；前后 token 数需另外采集，事件不直接提供这两个计数
 
 **配置示例**：
 
@@ -1812,8 +1897,13 @@ claude -w
   "hooks": {
     "PostCompact": [
       {
-        "command": "echo \"[$(date)] 上下文已压缩\" >> ~/.claude/compact.log",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date)] 上下文已压缩\" >> ~/.claude/compact.log",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
@@ -1842,15 +1932,23 @@ claude -w
   "hooks": {
     "InstructionsLoaded": [
       {
-        "command": "python .claude/hooks/verify-instructions.py",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "timeout": 5,
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-instructions.py"
+            ]
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-> 📝 **输入数据**：stdin JSON中包含已加载指令文件的路径列表，可用于检查关键指令文件是否缺失。
+> **输入与控制**：每次事件提供一个已加载文件的 `file_path`，以及 `memory_type`、`load_reason` 等字段，不是路径列表。它会随启动加载和后续惰性加载多次触发，异步运行且不能阻止或修改指令加载。示例中的 `verify-instructions.py` 是需要自行实现的审计脚本，不能靠它返回 deny 来阻止文件生效。
 
 ---
 
@@ -1870,7 +1968,7 @@ claude -w
 
 **ElicitationResult — 用户完成输入后触发**
 
-**触发时机**：用户完成MCP交互输入并提交后
+**触发时机**：用户响应 MCP 交互请求后、结果返回 MCP server 之前；Hook 可以检查、改写或拒绝这份响应。
 
 **典型用途**：
 - 验证用户输入数据的合法性
@@ -1884,19 +1982,36 @@ claude -w
   "hooks": {
     "Elicitation": [
       {
-        "command": "echo \"MCP请求输入: $(date)\" >> ~/.claude/elicitation.log",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"MCP请求输入: $(date)\" >> ~/.claude/elicitation.log",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "ElicitationResult": [
       {
-        "command": "python .claude/hooks/validate-elicitation.py",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "timeout": 5,
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-elicitation.py"
+            ]
+          }
+        ]
       }
     ]
   }
 }
 ```
+
+`Elicitation` 的退出码 `2` 拒绝输入请求；`ElicitationResult` 的退出码 `2` 拒绝响应，把 action 改为 `decline`。这两个事件的 stderr 不会显示给用户或 Claude。需要明确返回结果时，使用 `hookSpecificOutput`，填写对应的 `hookEventName` 和 `action`（`accept` / `decline` / `cancel`），`content` 只在接受时承载表单数据。
+
+上例中的 `validate-elicitation.py` 需要自行实现：读取 stdin 的 `mcp_server_name`、`action` 和可选的 `content`，再按上述契约返回。配置示例本身不包含校验策略。其他字段见 [官方 Elicitation 参考](https://code.claude.com/docs/en/hooks#elicitation)。
 
 ---
 
@@ -1913,9 +2028,13 @@ claude -w
   "hooks": {
     "PostToolUse": [
       {
-        "type": "http",
-        "url": "https://your-webhook.example.com/hook",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://your-webhook.example.com/hook",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
@@ -2353,12 +2472,9 @@ python -c "import json; json.load(open('.claude/settings.json'))"
 ```
 
 3. **检查Matcher是否匹配**
-```json
-// 错误：matcher拼写错误
-"matcher": "write"  // X 应该是大写W
-
-// 正确
-"matcher": "Write"  // V
+```text
+错误的字段片段："matcher": "write"  （工具名应使用大写 W）
+正确的字段片段："matcher": "Write"
 ```
 
 4. **检查脚本路径**
@@ -2420,11 +2536,15 @@ print(f"DEBUG: 收到输入: {input_data}", file=sys.stderr)
 **解决方案**：
 
 1. **增加timeout配置**
+
+下面是内层 `hooks` 数组中的一个 handler，`timeout` 的单位为秒。先提供实际脚本，再合并到对应事件：
+
 ```json
 {
   "type": "command",
-  "command": "python .claude/hooks/slow-hook.py",
-  "timeout": 120  // 增加到120秒
+  "command": "python",
+  "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/slow-hook.py"],
+  "timeout": 120
 }
 ```
 
@@ -2507,8 +2627,10 @@ if DEBUG:
 ```
 
 **技巧3：逐步排除法**
+
+先只保留一个 Hook 测试：
+
 ```json
-// 先只保留一个Hook测试
 {
   "hooks": {
     "PostToolUse": [
@@ -2558,7 +2680,7 @@ if DEBUG:
 
 **Q4: 一个事件可以配置多个Hook吗？**
 
-可以！多个Hook会按顺序执行：
+可以。匹配到同一事件的多个 Hook 会并行运行，不保证数组顺序。如果后一步必须读取前一步的结果，把这些步骤放在同一个脚本里串行执行。下面两个 Hook 应当互不依赖。示例是 `hooks.PostToolUse` 数组中的一个匹配组，需放入现有配置的对应位置：
 
 ```json
 {
@@ -2581,11 +2703,11 @@ PreToolUse 有新旧两套API（新旧并存）：
 | `"allow"` | 允许执行，绕过权限系统 |
 | `"deny"` | 拒绝执行，原因会反馈给Claude |
 | `"ask"` | 暂停，询问用户决定 |
-| 无输出 | 默认允许 |
+| 无输出 | 不做决策，按该事件的正常流程继续 |
 
 **旧版（已废弃但仍支持）**：通过 `decision` 字段返回，映射关系见前文“旧版决策值”表。这里不重复展开，实际新脚本优先使用 `hookSpecificOutput.permissionDecision`。
 
-PostToolUse 和 UserPromptSubmit 使用 `"block"` 来阻止/提供反馈，无输出则默认允许。
+PostToolUse 的 `"block"` 是执行后的反馈，不能撤销工具操作；UserPromptSubmit 的 `"block"` 可阻止提示词提交。无输出表示没有追加决策。
 
 ### 配置问题
 
@@ -2684,10 +2806,8 @@ import json
 decision = {
     "hookSpecificOutput": {
         "hookEventName": "PreToolUse",
-        "permissionDecision": {
-            "decision": "deny",
-            "message": "拒绝原因（用户可见）"
-        }
+        "permissionDecision": "deny",
+        "permissionDecisionReason": "拒绝原因（用户可见）"
     }
 }
 print(json.dumps(decision))
@@ -2702,8 +2822,16 @@ print("调试信息", file=sys.stderr)  # 只在终端可见，用户看不到
 
 使用stdout输出JSON：
 ```python
-print(json.dumps({"decision": "deny", "message": "原因"}))
+print(json.dumps({
+    "hookSpecificOutput": {
+        "hookEventName": "PreToolUse",
+        "permissionDecision": "deny",
+        "permissionDecisionReason": "原因"
+    }
+}))
 ```
+
+> 退出码 0 且无输出表示这个 Hook 没有决策，工具调用会走正常权限流程；沉默不等于批准。
 
 **Q14: 脚本报错会影响Claude Code吗？**
 
@@ -2733,7 +2861,7 @@ else:  # Linux
 
 **Q17: 多个Hook的执行顺序是什么？**
 
-按配置文件中的顺序依次执行。
+同一事件匹配到的多个 Hook 会并行运行，不保证配置文件或数组中的顺序。有前后依赖的步骤应放进同一个脚本，由脚本串行执行；Q4 的两个独立 Hook 不能依赖彼此先完成。
 
 **Q18: Hook可以调用Claude API吗？**
 
@@ -2762,30 +2890,34 @@ git commit -m "Add Claude Code hooks"
 
 ## 附录A：配置速查表
 
-### Hook类型速查
+### 本课常用 Hook 类型速查
 
 | Hook类型 | 触发时机 | 输入格式 | 输出格式 | 可阻止 | 重要 |
 |----------|----------|----------|----------|--------|:----:|
 | UserPromptSubmit | 用户输入后 | JSON | 文本（注入上下文） | V |  |
 | PreToolUse | 工具调用前 | JSON | JSON决策 | V | ⭐ |
-| PostToolUse | 工具调用后 | JSON | 无 | X | ⭐ |
+| PostToolUse | 工具调用成功后 | JSON | JSON 反馈或上下文 | 不撤销已执行操作 | ⭐ |
 | Notification | 通知发送时 | JSON | 无 | X |  |
-| SessionStart | 会话开始 | 无 | 无 | X |  |
-| SessionEnd | 会话结束 | 无 | 无 | X |  |
-| Stop | AI停止 | JSON | 无 | X |  |
+| SessionStart | 会话开始或恢复 | JSON | 文本或 JSON 上下文 | X |  |
+| SessionEnd | 会话结束 | JSON | 清理与日志 | X |  |
+| Stop | Claude 准备结束响应 | JSON | block + reason | V：可要求继续 |  |
 | SubagentStart 🆕 | 子代理启动 | JSON | 无 | X |  |
-| SubagentStop 🆕 | 子代理停止 | JSON | 无 | X |  |
+| SubagentStop | 子代理准备结束 | JSON | block + reason | V：可要求继续 |  |
 | PermissionRequest 🆕 | 权限请求 | JSON | JSON决策 | V |  |
-| PreCompact 🆕 | 上下文压缩前 | JSON | 无 | X |  |
-| ConfigChange 🆕 | 配置变更 | JSON | 无 | X |  |
-| TeammateIdle 🆕 | 队友空闲 | JSON | 无 | X |  |
-| WorktreeCreate | 工作树创建 | JSON | 无 | X |  |
-| WorktreeRemove | 工作树删除 | JSON | 无 | X |  |
+| PreCompact 🆕 | 上下文压缩前 | JSON | 退出码 2 或 decision: block | V：可阻止压缩 |  |
+| ConfigChange 🆕 | 新配置应用前 | JSON | 退出码 2 或 decision: block | V：policy_settings 除外 |  |
+| TeammateIdle 🆕 | 队友即将空闲 | JSON | 退出码 2 + stderr 反馈 | V：让队友继续工作 |  |
+| WorktreeCreate | 接管工作树创建 | JSON（含 name） | 创建目录路径 | V：失败或无路径则创建失败 |  |
+| WorktreeRemove | 工作树即将移除 | JSON（含 worktree_path） | 退出码；JSON 决策忽略 | V：非零且目录仍存在则失败 |  |
 | StopFailure 🆕 | API异常停止 | JSON | 无 | X |  |
 | PostCompact 🆕 | 上下文压缩后 | JSON | 无 | X |  |
 | InstructionsLoaded 🆕 | 指令文件加载 | JSON | 无 | X |  |
-| Elicitation 🆕 | MCP请求输入 | JSON | 无 | X |  |
-| ElicitationResult 🆕 | MCP输入完成 | JSON | 无 | X |  |
+| Elicitation 🆕 | MCP 请求输入 | JSON | action / content，或退出码 2 | V：可拒绝请求 |  |
+| ElicitationResult 🆕 | 输入返回 MCP 前 | JSON | action / content，或退出码 2 | V：可拒绝响应 |  |
+| PreModelSwitch | 用户或客户端请求切换模型前 | JSON | JSON 决策 | V |  |
+| PostModelSwitch | 模型切换后 | JSON | 文本或 JSON 上下文 | 不撤销切换 |  |
+
+此表只列本课常用事件。其他事件及精确输入、输出字段请查[官方事件参考](https://code.claude.com/docs/en/hooks#hook-events)。
 
 ### 常用工具名速查
 
@@ -2808,7 +2940,7 @@ git commit -m "Add Claude Code hooks"
 | `"allow"` | 允许，绕过权限系统 | V | ⭐ |
 | `"deny"` | 拒绝，原因反馈给Claude | X | ⭐ |
 | `"ask"` | 暂停，询问用户 | ? |  |
-| 无输出 | 默认允许 | V |  |
+| 无输出 | 不做决策，交给正常权限流程 | 按权限设置决定 |  |
 
 **PreToolUse 旧版 API**：`decision` 字段仍可兼容旧脚本，映射关系沿用前文“旧版决策值”表；新脚本优先写新版字段。
 
@@ -2816,8 +2948,8 @@ git commit -m "Add Claude Code hooks"
 
 | 值 | 含义 |
 |----|------|
-| `"block"` | 阻止/提供反馈 |
-| 无输出 | 默认允许 |
+| `"block"` | UserPromptSubmit 阻止提交；PostToolUse 提供执行后反馈，不撤销工具操作 |
+| 无输出 | 不做决策，按该事件的正常流程继续 |
 
 ---
 
@@ -2905,7 +3037,7 @@ exit 0
 通过本课学习，你已经掌握：
 
 1. **Hooks核心概念**：理解Hook是什么、为什么需要、能做什么
-2. **15种Hook类型**：PreToolUse、PostToolUse、UserPromptSubmit、Notification、Stop、SessionStart、SessionEnd、SubagentStart、SubagentStop、PermissionRequest、PreCompact、ConfigChange、TeammateIdle、WorktreeCreate、WorktreeRemove全部类型
+2. **常用事件族**：工具调用、会话、子代理、权限、压缩、配置、工作树和 MCP 交互等事件的适用场景与控制方式
 3. **配置方法**：settings.json配置格式、Matcher语法、timeout设置
 4. **实战场景**：Git自动化、代码格式化、文件保护、质量检查
 5. **故障排查**：常见问题诊断和解决方法

@@ -229,7 +229,7 @@ Automation 管“什么时候运行”，Skill 管“怎么做”。
 好处：
 
 - Automation 保持短。
-- Skill 里沉淀详细流程。
+- Skill 里写清详细流程。
 - 团队可以复用同一个 Skill。
 
 ## 6. 与 Commands 的区别
@@ -238,7 +238,7 @@ Automation 管“什么时候运行”，Skill 管“怎么做”。
 |---|---|---|
 | Command | 当前会话手动输入 | 立即执行 |
 | Skill | 用户点名或自然语言触发 | 可复用流程 |
-| Automation | 时间或后台事件触发 | 重复任务 |
+| Automation | 按时间规则运行 | 重复任务 |
 
 不要用 Automation 做本来一次就能完成的事。
 
@@ -672,7 +672,7 @@ Worktree 模式给自动化一个独立 checkout。优点是隔离，缺点是�
 
 Worktree 不是免费的无限沙盒。它让工作隔离，但仍然需要人维护。
 
-## 18. 自动化与 Skills：把重复动作沉淀成可维护流程
+## 18. 自动化与 Skills：把重复动作整理成可维护流程
 
 如果一个 automation prompt 越写越长，说明它可能应该拆出 Skill。
 

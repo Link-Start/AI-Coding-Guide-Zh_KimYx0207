@@ -2,9 +2,9 @@
 
 本篇只解决一件事：把 **Codex App** 正确装好、登上号、打开本地项目，并跑通第一个安全任务。
 
-官方来源：OpenAI Codex App 文档、Codex changelog、[Codex App Windows](https://developers.openai.com/codex/app/windows)、[Codex Quickstart](https://developers.openai.com/codex/quickstart)、Codex CLI 文档。本篇按 2026-08-06 可查官方文档、Codex App 26.727 与 Codex CLI 0.146.1 修订；CLI 只用于辅助安装、自动化和排查，入口、包名和版本会变化，以官方页面和当前 App 为准。
+官方来源：OpenAI Codex App 文档、Codex changelog、[Codex App Windows](https://developers.openai.com/codex/app/windows)、[Codex Quickstart](https://developers.openai.com/codex/quickstart)、Codex CLI 文档。本篇按 2026-09-13 可查官方文档、Codex App 26.908 与 Codex CLI 0.154.0 修订；CLI 只用于辅助安装、自动化和排查，入口、包名和版本会变化，以官方页面和当前 App 为准。
 
-> **2026-08-06 安装口径**：自 **App 26.707（2026-07-09）** 起，**Codex 已并入 ChatGPT 桌面 App**——安装 ChatGPT 桌面后即可在其中使用 Codex，并可把 Codex 设为默认视图；原有项目、设置、线程保留。26.727 又补强了内置浏览器、Chrome 扩展（提及打开标签页 / 高亮文本）、多仓库 diff 审查和 Activity view。登录方面，设备码登录现在会显示防钓鱼提示，macOS 助手已签名+公证，企业版支持管理员通过 managed policies 控制 in-app 更新。社区有报告 App 更新后偶发线程/项目数据丢失，**更新前建议手动备份本地线程和项目目录**，以本机版本和官方公告为准。
+> **2026-09-13 安装口径**：自 **App 26.707（2026-07-09）** 起，**Codex 已并入 ChatGPT 桌面 App**——安装 ChatGPT 桌面后即可在其中使用 Codex，并可把 Codex 设为默认视图；原有项目、设置、线程保留。26.727 补强了内置浏览器、Chrome 扩展（提及打开标签页 / 高亮文本）、多仓库 diff 审查和 Activity view。**App 26.908（2026-09-11）** 又加了悬浮 Pets 控件上的快速对话（`@` 带上下文、`$` 选 skill）、Windows 上同时按下两个 Alt 键截 Appshot、从会话的 Sources 面板直接打开文件、Codex Micro 的 Insert text、宠物一键恢复默认尺寸、听写遵循已保存的主语言，以及关闭浏览器标签时宽度和滚动位置的稳定性修复。登录方面，设备码登录现在会显示防钓鱼提示，macOS 助手已签名+公证，企业版支持管理员通过 managed policies 控制 in-app 更新。社区有报告 App 更新后偶发线程/项目数据丢失，**更新前建议手动备份本地线程和项目目录**，以本机版本和官方公告为准。
 
 ---
 
@@ -17,7 +17,7 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：2-3小时
 > - **难度等级**：⭐ 零基础入门
-> - **更新日期**：2026年5月31日
+> - **更新日期**：2026年9月13日
 > - **信息来源**：[Codex App Windows](https://developers.openai.com/codex/app/windows) | [Codex Quickstart](https://developers.openai.com/codex/quickstart) | Codex changelog | Codex CLI 文档（辅助）
 > - **前置要求**：无（本系列第一篇）
 
@@ -142,7 +142,7 @@ App 能打开
 
 ## 0. Critical：先把安装目标说清楚
 
-老金我把 Codex 第一课放在 App 安装和认证，是因为这条主线先解决“能不能安全打开本地项目”。
+我把 Codex 第一课放在 App 安装和认证，是因为这条主线先解决“能不能安全打开本地项目”。
 
 本系列不是从 CLI 开始，而是从 App 开始。你安装成功的标准不是"终端里有 codex 命令"，而是：
 
@@ -1531,7 +1531,7 @@ codex exec "任务描述"   # 无头执行一次任务
 ---
 
 **课程制作**：老金
-**最后更新**：2026年6月18日
+**最后更新**：2026年9月13日
 **许可**：本课程采用 MIT License；转载、复制或二次分发时必须保留版权声明与许可声明
 
 ---

@@ -9,17 +9,19 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：1-2小时
 > - **难度等级**：⭐⭐ 进阶
-> - **更新日期**：2026年6月18日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **信息来源**：[Claude Code 官方文档 - Remote Control](https://code.claude.com/docs/en/remote-control)
 
 ---
 
 ## 本课学习目标
 
-老金我把 Remote Control 写成辅助协作，而不是远程放飞，是因为移动端接力也必须有边界。
+我把 Remote Control 写成辅助协作，而不是远程放飞，是因为移动端接力也必须有边界。
 
 > **2026-06-18 操作口径**：v2.1.181 后 Remote Control 也支持 `/config key=value` 配置入口，并新增 `CLAUDE_CLIENT_PRESENCE_FILE` 用于客户端 presence 状态集成。移动端接力前，仍然先确认登录方式、workspace trust、权限模式和当前项目路径，避免在手机上误以为切到了另一个本地仓库。
+
+> **2026-09-14 当前基线（v2.1.270）**：远程侧修的几处都直接影响接力体验。后台 agent 在跑时，远程和无头会话不再显示"等待你输入"（想要旧行为可设 `CLAUDE_CODE_BG_TASKS_REPORT_RUNNING=0`）；远程按 Stop 现在能真正停掉后台 agent 和 workflow（v2.1.259 修复）；由桌面端或 VS Code 托管的远程会话，在网络变差时不再一卡几分钟（v2.1.252 修复）；从远程执行 `/clear` 不再卡在 SessionStart hook 或未关闭的对话框上。能力上：`/output-style [name]` 现在远程可用，`/advisor` 有了文本形式，前台 subagent 的工具调用和结果可以实时流式推到远程客户端（后台 subagent 仍只显示状态）。
 
 完成本课后，你将能：
 
@@ -415,11 +417,11 @@ claude --remote-control "deploy-watch"
 
 ### Q5：它能替代 Cloud / Desktop scheduled tasks 吗？
 
-不能。Remote Control 适合”继续一个正在运行的本地会话”，不是长期持久调度系统。
+不能。Remote Control 适合"继续一个正在运行的本地会话"，不是长期持久调度系统。
 
 ### Q6：Ultraplan 模式下能用 Remote Control 吗？
 
-不能。官方文档明确说明 **Ultraplan 会断开 Remote Control**。如果你需要远程监控，避免在 Remote Control 会话中使用 Ultraplan。
+`/ultraplan` 已在 v2.1.222 移除。现在可先用 `/plan` 制定计划，再继续远程接力；如果额外调用第三方工作流 Skill，要单独检查它是否会启动云任务、改变会话或访问其他工具，不能笼统保证所有 Skill 都与 Remote Control 兼容。
 
 ### Q7：网络不稳定会怎样？
 
@@ -463,8 +465,8 @@ claude --remote-control
 ## 13. 下一步建议
 
 - 想把外部消息直接推到会话中：继续看 [Channels与计划任务完整指南](./13-Channels与计划任务完整指南.md)
-- 想理解模型切换、1M context 和 `opusplan`：继续看 [安装指南中的模型配置章节](./01-Claude-Code完整安装指南.md#85部分模型配置安装后的进阶配置)
+- 想理解模型切换、1M context 和 `opusplan`：继续看 [安装指南中的模型配置章节](./01-Claude-Code完整安装指南.md#第85部分模型配置安装后的进阶配置)
 
 ---
 
-> **最后更新**：2026年6月18日 | **适用版本**：Claude Code v2.1.181
+> **最后更新**：2026年9月14日 | **适用版本**：Claude Code v2.1.270

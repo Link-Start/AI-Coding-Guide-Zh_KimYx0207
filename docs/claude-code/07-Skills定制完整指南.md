@@ -9,8 +9,8 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：8-10小时
 > - **难度等级**：⭐⭐ 入门级（有Claude Code基础即可）
-> - **更新日期**：2026年6月9日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 > - **前置要求**：已完成Claude Code安装和Commands基础使用
 > - **🆕 专属内容**：Hooks系统、Forked Sub-Agents、Hot Reloading
 
@@ -18,7 +18,9 @@
 
 ## 本课学习目标
 
-我把 Skill 讲成可复用工作流，是因为老金自己的经验里，真正省时间的是把好判断沉淀下来。
+我把 Skill 讲成可复用工作流，是因为真正省时间的是把好判断固定下来，下次不用重新想。
+
+> **升级后的诊断入口（核查日：2026-09-14）**：v2.1.233 起，`claude plugin validate .claude/skills` 可以检查 Skill 目录及 `SKILL.md` frontmatter；v2.1.261 起，`/skill-doctor` 可以查看 Skill 使用情况与上下文成本。遇到加载或触发问题，先检查格式，再看诊断结果，不要只反复改提示词。来源：[官方 changelog](https://code.claude.com/docs/en/changelog)。
 
 完成本课学习后，你将能够：
 
@@ -287,7 +289,7 @@ description: 当用户提到"公众号"、"写文章"、"老金风格"等关键�
 **设计优势**：
 - 新手可以直接用，无需学习复杂配置
 - 高级用户可以深度定制每个细节
-- 团队可以将最佳实践沉淀到Skills中
+- 团队可以将最佳实践固化到 Skills 里
 
 ### 1.4 什么时候该用Skills
 
@@ -1272,7 +1274,7 @@ if __name__ == "__main__":
 
 **调用方式**：
 
-```markdown
+````markdown
 # 在Command中调用脚本示例
 
 ### 步骤X：执行质量检测
@@ -1287,7 +1289,7 @@ cd ".claude/skills/gongzhonghao-writer/scripts" && python quality_detector.py "�
 - `--json`：输出JSON格式（便于解析）
 
 **预期输出**：
-````json
+```json
 {
   "success": true,
   "data": {
@@ -1346,7 +1348,7 @@ cd ".claude/skills/gongzhonghao-writer/scripts" && python quality_detector.py "�
 
 ## 第六部分：实战案例分析
 
-**本部分的**：通过分析真实的企业级Skill，学习高级设计模式。
+**本部分目的**：通过分析真实的企业级Skill，学习高级设计模式。
 
 ### 6.1 多步骤工作流设计
 
@@ -1545,7 +1547,7 @@ description: 当用户提到"公众号"、"写文章"、"老金风格"等关键�
 
 ## 第七部分：故障排查
 
-**本部分的**：快速解决Skill配置和运行中的常见问题。
+**本部分目的**：快速解决Skill配置和运行中的常见问题。
 
 ### 7.1 常见错误及解决方案
 

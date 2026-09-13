@@ -1,4 +1,4 @@
-# Subagent 子代理完整指南：官方 Subagents、Task 委派与社区代理资源
+# Subagent 子代理完整指南：官方 Subagents、Agent 委派与社区代理资源
 
 > **课程信息**
 >
@@ -9,21 +9,21 @@
 > - **个人博客**：https://aiking.dev
 > - **预计学时**：1-2小时
 > - **难度等级**：⭐⭐⭐ 中级
-> - **更新日期**：2026年6月18日
-> - **适用版本**：Claude Code v2.1.181（验证于 2026-06-18；旧差量保留为历史基线）
+> - **更新日期**：2026年9月14日
+> - **适用版本**：Claude Code v2.1.270（验证于 2026-09-14；旧差量保留为历史基线）
 
 ---
 
 ## 📚 本课学习目标
 
-老金我把子代理当成分工工具，不当成神奇按钮；多开一个 agent 之前，先问清它到底负责什么。
+我把子代理当成分工工具，不当成神奇按钮；多开一个 agent 之前，先问清它到底负责什么。
 
-> **2026-08-06 操作口径**：v2.1.198 起 subagent **默认在后台运行**（Explore agent 现继承主会话模型而非 haiku）；v2.1.219 起嵌套深度默认提升到 **3 层**（v2.1.217 曾临时回退到 0，v2.1.219 恢复到 3）；同时引入防失控上限——每会话 subagent 生成数默认 **200**、并发默认 **20**（`--max-budget-usd` 达上限时会中止后台 subagent）。安全侧：v2.1.210 修复了 worktree 隔离 subagent 对主 checkout 做破坏性 git 操作的问题。`/code-review` 和 `/deep-research` 已重制为后台 subagent 形态（v2.1.218）。演示时仍先讲”边界清晰的一层委派”，再讲多层；多层不要当成默认做法。
+> **2026-08-06 操作口径**：v2.1.198 起 subagent **默认在后台运行**（Explore agent 现继承主会话模型而非 haiku）；v2.1.219 起嵌套深度默认提升到 **3 层**（v2.1.217 曾临时回退到 0，v2.1.219 恢复到 3）；同时引入防失控上限——当时每会话 subagent 生成数默认 **200**、并发默认 **20**（累计生成数上限已在 v2.1.224 移除，见下文补录）（`--max-budget-usd` 达上限时会中止后台 subagent）。安全侧：v2.1.210 修复了 worktree 隔离 subagent 对主 checkout 做破坏性 git 操作的问题。`/code-review` 和 `/deep-research` 已重制为后台 subagent 形态（v2.1.218）。演示时仍先讲「边界清晰的一层委派」，再讲多层；多层不要当成默认做法。
 
 完成本课学习后，你将能够：
 
 1. **理解子代理的概念**：知道 Subagent 是什么、怎么工作的
-2. **掌握官方子代理入口**：知道 `.claude/agents/`、`/agents`、Task 委派各自负责什么
+2. **掌握官方子代理入口**：知道 `.claude/agents/`、`/agents`、Agent 委派各自负责什么
 3. **分清官方能力与社区资源**：明确 VoltAgent 之类的第三方代理包不是 Claude Code 官方内置
 4. **提升开发效率**：在实际项目中合理使用多代理并行协作
 
@@ -360,6 +360,10 @@ chmod +x install-agents.sh
 
 ## 核心概念
 
+> **2026-09-14 当前基线（v2.1.270）**：并发上限现在可调：`CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS`（取值 1–256）能提高 Workflow 工具单次运行的并发 agent 数；`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 可以让 `CLAUDE_CODE_SUBAGENT_MODEL`（或主模型）覆盖所有 subagent，忽略每次派生和 agent 定义里的 `model:`。稳定性上修了几个直接影响长任务的问题：响应在流式传输中断（休眠、掉线、服务端错误）时 subagent 会自动续跑而不是停住；转录超过 5 MB 的 subagent 恢复不再报 "No transcript found"；停掉后台 subagent 时它的监控也会一并停。远程会话里前台 subagent 的工具调用现在可以实时流式显示（后台 subagent 仍只显示状态）；后台 agent 运行期间，远程和无头会话不再误报"等待你输入"。
+
+> **中间版本补录（核查日：2026-09-14）**：v2.1.224 移除了每会话累计派生 200 个 subagent 的上限，并发和深度限制仍保留。v2.1.232 起默认支持 fork：`subagent_type: "fork"` 继承完整对话与提示缓存；交互会话里，非 teammate 的 subagent 默认在后台运行。共享上下文不等于隔离文件，派发前仍要明确文件职责；需要独立工作树时另行配置隔离。来源：[官方 changelog](https://code.claude.com/docs/en/changelog)。
+
 > **v2.1.139→v2.1.158 关键更新**：`claude agents` Agent View 已成为管理运行中、等待输入和已完成会话的重要入口；`claude agents --json` 可用于脚本化查看后台会话；`--cwd`、`--add-dir`、`--settings`、`--mcp-config`、`--plugin-dir`、`--permission-mode`、`--model`、`--effort` 等参数让后台会话更容易复用当前项目配置。v2.1.154 起还可以在 Agent View 输入 `! <command>` 或用 `claude --bg --exec '<command>'` 跑可附着的后台 shell。v2.1.157 起 `claude agents` 会尊重 `settings.json` 里的 `agent` 字段，并可用 `--agent <name>` 覆盖；`EnterWorktree` 可以在会话中切换 Claude 管理的 worktree，完成后的 Claude worktree 也会保持解锁，方便 `git worktree remove` / `prune` 清理。Windows、worktree、stale daemon、pinned session、resume 后台子代理和 subagent 隔离场景也有多轮修复，团队教程里不要再默认把后台 agent 当成会写共享 checkout 的普通子进程。
 
 | 概念 | 说明 | 类比 |
@@ -369,9 +373,9 @@ chmod +x install-agents.sh
 | **TaskList** | 共享任务列表，所有成员可见进度和状态 | 看板 / Trello |
 | **SendMessage** | 代理间通信机制，支持直接消息和广播 | 团队群聊 |
 
-## 与普通 Subagent/Task 的区别
+## 与普通 Subagent（Agent 工具） 的区别
 
-| 特性 | 普通 Subagent/Task | Agent Teams |
+| 特性 | 普通 Subagent（Agent 工具） | Agent Teams |
 |------|-------------------|-------------|
 | 协作模式 | 一对一（主代理 → 子代理） | 多对多（团队协作） |
 | 任务管理 | 各自独立，互不感知 | 共享任务列表，实时同步 |
@@ -398,7 +402,7 @@ You: 帮我组建一个团队，并行处理以下任务：
 Team Lead 会自动将任务分配给不同的 Teammate，各成员独立工作并通过 SendMessage 同步关键信息。
 
 > 💡 **何时用哪个？**
-> - **简单独立任务**（翻译文件、生成测试）→ 普通 Subagent/Task，更轻量
+> - **简单独立任务**（翻译文件、生成测试）→ 普通 Subagent（Agent 工具），更轻量
 > - **复杂协作项目**（多模块重构、全栈开发）→ Agent Teams，但前提是你愿意接受实验性行为和额外编排成本
 
 ---
