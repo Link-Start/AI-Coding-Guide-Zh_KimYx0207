@@ -69,7 +69,7 @@ pnpm config get global-bin-dir
 
 **现象：** 安装时报错 `engine "node" is incompatible` 或运行时出现语法错误。
 
-**原因：** OpenClaw 当前官方建议使用 Node.js 24.x；22.19+ 仍然兼容。低于兼容线时，常见报错就是 `engine incompatible`、运行时语法错误或部分 API 不可用。
+**原因：** OpenClaw v2026.9.4 要求 `>=24.16.0 <25 || >=26.1.0`：24.x 至少 24.16.0，或 26.1.0 及以上；新装推荐 26.x。Node 22、25.x 和 26.0.x 不在这个范围内。来源：[官方快速开始](https://docs.openclaw.ai/start/getting-started)、[指定版本的运行时要求](https://github.com/openclaw/openclaw/blob/v2026.9.4/package.json)（核查日：2026-09-14）。
 
 **解决方案：**
 
@@ -77,24 +77,24 @@ pnpm config get global-bin-dir
 # 检查当前版本
 node --version
 
-# 如果低于 v22，用 nvm 升级
+# 仅在当前版本不符合上述范围时升级
 # 安装 nvm（如果还没装）
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
 
 # 重新打开终端，然后：
-nvm install 24
-nvm use 24
-nvm alias default 24  # 设为默认版本
+nvm install 26
+nvm use 26
+nvm alias default 26  # 设为默认版本
 
 # 验证
-node --version  # 应该显示 v24.x.x
+node --version  # 确认 v26.x.x，且不低于 v26.1.0
 ```
 
 Windows 用户推荐用 [nvm-windows](https://github.com/coreybutler/nvm-windows)：
 
 ```powershell
-nvm install 24
-nvm use 24
+nvm install 26
+nvm use 26
 ```
 
 ### Q3: npm install 报权限错误（EACCES）

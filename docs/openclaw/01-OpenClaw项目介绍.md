@@ -477,7 +477,7 @@ OpenClaw Gateway ←→ mcporter ←→ MCP Servers
 
 | 类别 | 库 | 用途 |
 |------|-----|------|
-| 运行时 | Node.js 24.x 推荐，22.19+ 兼容 | 服务端 JavaScript 运行时 |
+| 运行时 | v2026.9.4 推荐 Node.js 26.x；支持 24.x 至少 24.16.0，或 26.1.0 及以上 | 服务端 JavaScript 运行时；完整安装要求见 [OC-02](02-安装部署指南.md#2-nodejs-环境安装) |
 | 语言 | TypeScript 5.9+ | 类型安全 |
 | 构建 | tsdown | TypeScript 打包工具 |
 | 测试 | Vitest 4.x | 单元测试 + E2E 测试 |
@@ -757,7 +757,7 @@ ClawHub（clawhub.com）是 OpenClaw 的技能和插件市场。社区开发者�
 | 企业客服机器人 | OpenClaw 是单用户设计 | Botpress, Intercom |
 | 多用户 SaaS 产品 | 没有多租户架构 | 自建方案 |
 | 不想碰终端的用户 | 目前安装和配置需要命令行 | ChatGPT, Claude.ai |
-| 低配设备 | 需要 Node.js 22+，内存占用不小 | 轻量级 Bot 框架 |
+| 资源紧张的设备 | Gateway 常驻运行，接多平台或本地模型时需要预留内存 | 先减少连接平台和任务数，或另选运行设备 |
 | 需要 100% 可用性 | 个人设备可能关机/断网 | 云端 AI 服务 |
 
 OpenClaw 的设计哲学很明确：**它是一个个人助手，不是企业平台。** 单用户、本地优先、隐私至上。
